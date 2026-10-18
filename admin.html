@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <meta name="theme-color" content="#b91c2e" />
+  <meta name="theme-color" content="#d92d20" />
   <title>Owner Dashboard · Royal Treat</title>
   <link rel="icon" href="royal-treat-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -12,12 +12,12 @@
   <script>
     tailwind.config = { theme: { extend: {
       fontFamily: { sans: ["DM Sans", "ui-sans-serif", "system-ui", "sans-serif"] },
-      colors: { brand: { DEFAULT: "#b91c2e", dark: "#8f1424", soft: "#fdf1f2", line: "#f6cfd3" }, ink: "#101828", gold: "#b8893a", live: { DEFAULT: "#12a150", soft: "#e7f7ee" } },
+      colors: { brand: { DEFAULT: "#d92d20", dark: "#b42318", soft: "#fef0ee", line: "#fbd5d0" }, ink: "#101828", live: { DEFAULT: "#12a150", soft: "#e7f7ee" } },
       boxShadow: { card: "0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06)" } } } };
   </script>
   <style>
-    body { background: #faf7f2; }
-    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(185,28,46,.3); outline-offset: 1px; }
+    body { background: #f6f8fb; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(217,45,32,.3); outline-offset: 1px; }
     .tog { appearance: none; width: 36px; height: 20px; border-radius: 999px; background: #cbd5e1; position: relative; cursor: pointer; transition: .15s; flex-shrink: 0; }
     .tog::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: .15s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
     .tog:checked { background: #12a150; } .tog:checked::after { left: 18px; }
@@ -27,26 +27,15 @@
     .lbl { display: block; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
     .inp { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 9px 12px; font-size: 14px; background: #fff; }
     .btn { border-radius: 10px; padding: 9px 14px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0; background: #fff; }
-    .btn:hover { background: #f8fafc; } .btn-red { background: #b91c2e; border-color: #b91c2e; color: #fff; } .btn-red:hover { background: #8f1424; }
-    @keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(185,28,46,0); } 50% { box-shadow: 0 0 0 4px rgba(185,28,46,.35); } }
+    .btn:hover { background: #f8fafc; } .btn-red { background: #ef4444; border-color: #ef4444; color: #fff; } .btn-red:hover { background: #dc2626; }
+    @keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(217,45,32,0); } 50% { box-shadow: 0 0 0 4px rgba(217,45,32,.35); } }
     .flash { animation: flash 1s ease 3; }
-    /* ---- Royal polish (visual only) ---- */
-    body { background: radial-gradient(900px 380px at 50% -120px, #f6e7da 0%, #faf7f2 60%) fixed; -webkit-tap-highlight-color: transparent; }
-    .btn { min-height: 40px; font-size: 13px; transition: .15s; } .btn:active { transform: scale(.97); }
-    .inp { min-height: 44px; font-size: 16px; transition: border-color .15s, box-shadow .15s; }
-    .inp:focus { border-color: #b91c2e; box-shadow: 0 0 0 3px rgba(185,28,46,.12); outline: none; }
-    @media (min-width: 640px) { .inp { font-size: 14px; min-height: 42px; } }
-    .tab { transition: .15s; } nav[role="tablist"] { scrollbar-width: none; } nav[role="tablist"]::-webkit-scrollbar { display: none; }
-    .stat { position: relative; overflow: hidden; } .stat::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: linear-gradient(#b91c2e, #b8893a); }
-    #orders article { transition: transform .15s; } #orders article:active { transform: scale(.995); }
-    table { min-width: 640px; } .overflow-x-auto { -webkit-overflow-scrolling: touch; }
-    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body class="font-sans text-ink antialiased">
 
 <!-- ============ LOGIN ============ -->
-<div id="login" class="fixed inset-0 z-50 grid place-items-center bg-[#faf7f2] p-4">
+<div id="login" class="fixed inset-0 z-50 grid place-items-center bg-[#f6f8fb] p-4">
   <form id="login-form" class="w-full max-w-sm rounded-3xl bg-white p-7 shadow-card">
     <img src="royal-treat-logo.png" alt="" class="h-12 w-12 rounded-xl object-cover" />
     <h1 class="mt-4 text-2xl font-extrabold tracking-tight">Owner dashboard</h1>
@@ -59,11 +48,11 @@
   </form>
 </div>
 
-<div id="shell" class="mx-auto hidden max-w-7xl px-3 pb-20 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6">
+<div id="shell" class="mx-auto hidden max-w-6xl px-4 pb-16 pt-5 sm:px-6">
   <!-- ============ HEADER ============ -->
   <header class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
     <div>
-      <div class="flex items-center gap-3"><img src="royal-treat-logo.png" alt="" class="h-11 w-11 rounded-xl object-cover shadow-card" /><h1 class="text-[26px] font-extrabold tracking-tight">Royal Treat <span class="text-gold">.</span></h1></div>
+      <h1 class="text-[26px] font-extrabold tracking-tight">Royal Treat <span class="text-brand">.</span></h1>
       <p class="mt-0.5 flex items-center gap-2 text-sm text-slate-500">QR Ordering System
         <span class="inline-flex items-center gap-1.5 rounded-full border border-live/20 bg-live-soft px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-live"><span class="h-1.5 w-1.5 rounded-full bg-live"></span>Live dashboard</span>
       </p>
@@ -77,24 +66,24 @@
   </header>
 
   <!-- ============ STATS ============ -->
-  <section class="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4" aria-label="Today at a glance">
-    <div class="stat rounded-2xl border border-slate-200 bg-white p-5 pl-6 shadow-card"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's sales</p><p id="st-sales" class="mt-1.5 text-4xl font-extrabold tracking-tight">₹0</p><p class="mt-1 text-[11px] text-slate-400">Live · updates every few seconds</p></div>
-    <div class="stat rounded-2xl border border-slate-200 bg-white p-5 pl-6 shadow-card"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active orders <span class="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-400"></span></p><p id="st-active" class="mt-1.5 text-4xl font-extrabold tracking-tight text-brand">0</p><p class="mt-1 text-[11px] text-slate-400">New and being prepared</p></div>
-    <div class="stat rounded-2xl border border-slate-200 bg-white p-5 pl-6 shadow-card"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Items served today</p><p id="st-items" class="mt-1.5 text-4xl font-extrabold tracking-tight">0</p><p id="st-items-sub" class="mt-1 text-[11px] text-slate-400">Across 0 completed orders</p></div>
+  <section class="mt-5 grid gap-4 sm:grid-cols-3" aria-label="Today at a glance">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's sales</p><p id="st-sales" class="mt-1.5 text-3xl font-extrabold">₹0</p><p class="mt-1 text-[11px] text-slate-400">Live · updates every few seconds</p></div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active orders <span class="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-400"></span></p><p id="st-active" class="mt-1.5 text-3xl font-extrabold text-brand">0</p><p class="mt-1 text-[11px] text-slate-400">New and being prepared</p></div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Items served today</p><p id="st-items" class="mt-1.5 text-3xl font-extrabold">0</p><p id="st-items-sub" class="mt-1 text-[11px] text-slate-400">Across 0 completed orders</p></div>
   </section>
 
   <!-- ============ TABS ============ -->
-  <nav class="sticky top-2 z-20 mt-6 flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white/95 p-1.5 text-sm font-bold shadow-card backdrop-blur" role="tablist">
-    <button data-tab="orders" class="tab shrink-0 whitespace-nowrap rounded-xl px-5 py-2.5">Orders</button>
-    <button data-tab="menu" class="tab shrink-0 whitespace-nowrap rounded-xl px-5 py-2.5">Menu</button>
-    <button data-tab="waiters" class="tab shrink-0 whitespace-nowrap rounded-xl px-5 py-2.5">Waiters</button>
-    <button data-tab="settings" class="tab shrink-0 whitespace-nowrap rounded-xl px-5 py-2.5">Settings</button>
+  <nav class="mt-6 flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 text-sm font-bold" role="tablist">
+    <button data-tab="orders" class="tab rounded-lg px-4 py-2">Orders</button>
+    <button data-tab="menu" class="tab rounded-lg px-4 py-2">Menu</button>
+    <button data-tab="waiters" class="tab rounded-lg px-4 py-2">Waiters</button>
+    <button data-tab="settings" class="tab rounded-lg px-4 py-2">Settings</button>
   </nav>
 
   <!-- ============ ORDERS ============ -->
   <section id="tab-orders" class="mt-4">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-      <div class="flex items-center justify-between"><h2 class="text-xl font-extrabold">Incoming Orders</h2><button id="refresh" class="btn text-brand">Refresh</button></div>
+      <div class="flex items-center justify-between"><h2 class="text-lg font-extrabold">Incoming Orders</h2><button id="refresh" class="text-xs font-bold text-brand">Refresh</button></div>
       <div id="orders" class="mt-4 grid gap-3 md:grid-cols-2"></div>
       <div class="mt-5 border-t border-slate-100 pt-4">
         <button id="load-history" class="btn">Show today's completed orders</button>
@@ -107,7 +96,7 @@
   <section id="tab-menu" class="mt-4 hidden">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <h2 class="text-lg font-extrabold">Menu Configuration</h2>
-      <form id="add-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_110px_170px_auto_auto]">
+      <form id="add-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[1fr_110px_170px_auto_auto]">
         <div><label class="lbl" for="a-name">Dish name</label><input id="a-name" class="inp" placeholder="e.g. Tandoori Chicken" required maxlength="80" /></div>
         <div><label class="lbl" for="a-price">Price (₹)</label><input id="a-price" type="number" min="1" step="any" class="inp" placeholder="0" required /></div>
         <div><label class="lbl" for="a-cat">Category</label><select id="a-cat" class="inp"></select></div>
@@ -146,7 +135,7 @@
       </div>
       <h3 class="mt-6 text-base font-extrabold">Waiters</h3>
       <p class="mt-1 text-sm text-slate-500">Add a waiter's mobile number. They get a private link that shows only their orders. Assign tables, or leave empty and orders are shared fairly.</p>
-      <form id="w-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.2fr_auto]">
+      <form id="w-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[1fr_1fr_1.2fr_auto]">
         <input type="hidden" id="w-id" />
         <div><label class="lbl" for="w-name">Name</label><input id="w-name" class="inp" required maxlength="40" /></div>
         <div><label class="lbl" for="w-phone">Mobile number</label><input id="w-phone" class="inp" inputmode="numeric" maxlength="14" placeholder="10 digits" required /></div>
@@ -250,7 +239,7 @@
   /* ---------- tabs ---------- */
   function tab(name) {
     ["orders", "menu", "waiters", "settings"].forEach((t) => $("#tab-" + t).classList.toggle("hidden", t !== name));
-    $$(".tab").forEach((b) => { const on = b.dataset.tab === name; b.className = "tab shrink-0 whitespace-nowrap rounded-xl px-5 py-2.5 " + (on ? "bg-brand text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"); });
+    $$(".tab").forEach((b) => { const on = b.dataset.tab === name; b.className = "tab rounded-lg px-4 py-2 " + (on ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"); });
     try { sessionStorage.setItem("rt-tab", name); } catch (_) {}
   }
   $$(".tab").forEach((b) => b.addEventListener("click", () => tab(b.dataset.tab)));
@@ -261,24 +250,20 @@
   const BADGE = { received: "bg-red-50 text-red-600", preparing: "bg-amber-50 text-amber-700", ready: "bg-emerald-50 text-emerald-700", served: "bg-slate-100 text-slate-600", cancelled: "bg-slate-100 text-slate-500" };
   const LABEL = { received: "New", preparing: "Preparing", ready: "Ready", served: "Served", cancelled: "Cancelled" };
 
-  const EDGE = { received: "border-l-red-500", preparing: "border-l-amber-400", ready: "border-l-emerald-500" };
   function orderCard(o, fresh) {
-    const lines = (o.items || []).map((i) => `<li class="flex items-center justify-between gap-3 py-3"><span class="flex min-w-0 items-center gap-3"><span class="shrink-0 rounded-lg bg-brand px-2.5 py-1 text-base font-extrabold text-white">${i.qty}×</span><span class="text-[18px] font-bold leading-snug">${esc(i.name)}</span></span><span class="shrink-0 text-base font-bold text-slate-600">${money(i.price * i.qty)}</span></li>`).join("");
-    return `<article class="rounded-2xl border border-slate-200 border-l-[6px] ${EDGE[o.status] || "border-l-slate-300"} bg-white p-4 shadow-card sm:p-5 ${fresh ? "flash" : ""}">
-      <div class="flex items-start justify-between gap-3">
-        <div class="flex min-w-0 items-center gap-3.5">
-          <div class="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl bg-ink text-center text-white"><div class="leading-none"><p class="text-[10px] font-bold uppercase tracking-widest text-white/60">Table</p><p class="mt-1 text-[32px] font-extrabold">${esc(String(o.table).replace(/^T0*/, ""))}</p></div></div>
-          <div class="min-w-0"><p class="text-2xl font-extrabold leading-tight">#${esc(o.number)}</p><p class="mt-0.5 text-sm font-semibold text-slate-500">${tm(o.createdAtMs)}</p></div>
-        </div>
-        <span class="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-wide ${BADGE[o.status] || ""}">${LABEL[o.status] || esc(o.status)}</span>
+    const lines = (o.items || []).map((i) => `<li class="flex justify-between gap-2"><span>${esc(i.name)} <span class="text-slate-400">× ${i.qty}</span></span><span class="font-semibold">${money(i.price * i.qty)}</span></li>`).join("");
+    return `<article class="rounded-2xl border border-slate-200 p-4 ${fresh ? "flash" : ""}">
+      <div class="flex items-start justify-between gap-2">
+        <div><p class="text-base font-extrabold">#${esc(o.number)} · Table ${esc(String(o.table).replace(/^T0*/, ""))}</p>
+          <p class="text-[11px] text-slate-500">${tm(o.createdAtMs)} · ${o.placedBy === "waiter" ? "Taken by waiter" : "Customer QR"}${o.waiterName ? " · 🧑‍🍳 " + esc(o.waiterName) : " · No waiter assigned"}</p></div>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${BADGE[o.status] || ""}">${LABEL[o.status] || esc(o.status)}</span>
       </div>
-      <p class="mt-3 text-xs font-medium text-slate-500">${o.placedBy === "waiter" ? "Taken by waiter" : "Customer QR"}${o.waiterName ? " · 🧑‍🍳 " + esc(o.waiterName) : " · No waiter assigned"}</p>
-      <ul class="mt-3 divide-y divide-slate-200/70 rounded-xl bg-slate-50 px-4">${lines}</ul>
-      ${o.notes ? `<p class="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-[15px] font-bold text-amber-800">📝 ${esc(o.notes)}</p>` : ""}
-      ${o.customer && (o.customer.name || o.customer.phone) ? `<p class="mt-3 text-sm font-medium text-slate-500">${esc(o.customer.name)} ${esc(o.customer.phone)}</p>` : ""}
-      <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-        <span class="text-2xl font-extrabold">${money(o.total)} <span class="block text-[11px] font-semibold text-slate-400 sm:inline">incl. tax · pay at counter</span></span>
-        ${ACTIVE[o.status] ? `<button data-st="${esc(o.id)}|cancelled" class="btn px-4 text-sm text-red-600">Cancel order</button>` : ""}
+      <ul class="mt-3 space-y-1 text-sm">${lines}</ul>
+      ${o.notes ? `<p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">📝 ${esc(o.notes)}</p>` : ""}
+      ${o.customer && (o.customer.name || o.customer.phone) ? `<p class="mt-2 text-[11px] text-slate-500">${esc(o.customer.name)} ${esc(o.customer.phone)}</p>` : ""}
+      <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+        <span class="text-sm font-extrabold">${money(o.total)} <span class="text-[10px] font-semibold text-slate-400">incl. tax · pay at counter</span></span>
+        ${ACTIVE[o.status] ? `<button data-st="${esc(o.id)}|cancelled" class="btn text-red-600">Cancel order</button>` : ""}
       </div></article>`;
   }
 
