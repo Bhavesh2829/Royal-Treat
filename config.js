@@ -56,8 +56,8 @@
     /* ---- Backend ------------------------------------------------------- */
     // true  = runs fully in the browser (localStorage) for demo / design review
     // false = talks to your REST API at API_BASE_URL
-    USE_MOCK: true,
-    API_BASE_URL: "https://your-api.example.com/api",
+    USE_MOCK: false,
+    API_BASE_URL: "/api",
     API_HEADERS: {
       // Only PUBLIC keys belong here. Never put secrets in front-end code.
       // "Authorization": "Bearer <public-key>",
