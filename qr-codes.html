@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Print table QR codes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="config.js"></script>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, sans-serif; background: #f6f8fb; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff; }
+      .qr-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd; }
+    }
+  </style>
+</head>
+<body class="p-6">
+  <div class="mx-auto max-w-5xl">
+    <div class="no-print mb-6 rounded-2xl bg-white p-5 shadow">
+      <h1 class="text-xl font-extrabold">Table QR codes</h1>
+      <p class="mt-1 text-sm text-slate-500">Enter the public address where index.html is hosted, then print this page (Ctrl/Cmd + P) and place one card on each table.</p>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <input id="base" class="min-w-[260px] flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm" placeholder="https://order.yourrestaurant.com/index.html" />
+        <input id="count" type="number" min="1" max="200" class="w-28 rounded-xl border border-slate-300 px-4 py-3 text-sm" />
+        <button id="go" class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white">Generate</button>
+        <button onclick="window.print()" class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-bold">Print</button>
+      </div>
+    </div>
+    <div id="grid" class="grid grid-cols-2 gap-4 sm:grid-cols-3"></div>
+  </div>
+
+  <script>
+    const cfg = window.APP_CONFIG;
+    const base = document.getElementById("base");
+    const count = document.getElementById("count");
+    base.value = location.href.replace(/qr-codes\.html.*$/, "index.html");
+    count.value = cfg.TABLE_COUNT;
+
+    function build() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      const n = Math.max(1, Math.min(200, +count.value || 1));
+      for (let i = 1; i <= n; i++) {
+        const label = cfg.TABLE_PREFIX + String(i).padStart(2, "0");
+        const url = base.value.trim() + (base.value.includes("?") ? "&" : "?") + "table=" + encodeURIComponent(label);
+        const card = document.createElement("div");
+        card.className = "qr-card flex flex-col items-center rounded-2xl bg-white p-5 text-center shadow";
+        card.innerHTML = `<p class="text-xs font-bold uppercase tracking-widest text-red-600">${cfg.RESTAURANT_NAME}</p>
+          <div class="my-3"></div>
+          <p class="text-2xl font-extrabold">${label}</p>
+          <p class="mt-1 text-[11px] uppercase tracking-widest text-slate-400">Scan to order</p>`;
+        new QRCode(card.children[1], { text: url, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
+        grid.appendChild(card);
+      }
+    }
+    document.getElementById("go").onclick = build;
+    build();
+  </script>
+</body>
+</html>
