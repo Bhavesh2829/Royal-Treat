@@ -152,6 +152,7 @@
       <h2 class="text-lg font-extrabold">Restaurant settings</h2>
       <form id="s-form" class="mt-4 space-y-4">
         <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><span><span class="block text-sm font-bold">Accepting orders</span><span class="text-xs text-slate-500">Turn off to pause all new orders.</span></span><input id="s-open" type="checkbox" class="tog" /></label>
+     <div hidden>
         <div class="grid gap-3 sm:grid-cols-3">
           <div><label class="lbl" for="s-gst">GST %</label><input id="s-gst" type="number" min="0" max="100" step="any" class="inp" /></div>
           <div><label class="lbl" for="s-svc">Service charge %</label><input id="s-svc" type="number" min="0" max="100" step="any" class="inp" /></div>
@@ -159,8 +160,8 @@
         </div>
         <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><span><span class="block text-sm font-bold">Menu prices already include GST</span><span class="text-xs text-slate-500">Confirm the correct tax treatment with your accountant.</span></span><input id="s-incl" type="checkbox" class="tog" /></label>
         <p class="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Also set the same GST / service values in <code>config.js</code> so the customer's cart preview matches. The server's values decide the final bill.</p>
-        <div class="flex items-center gap-3"><button class="btn btn-red">Save settings</button><a href="qr-codes.html" class="text-xs font-bold text-brand">Print table QR codes →</a></div>
-      </form>
+        </div>
+<div class="flex items-center gap-3"><button class="btn btn-red">Save settings</button></div>      </form>
     </div>
   </section>
 </div>
