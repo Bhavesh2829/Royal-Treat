@@ -41,6 +41,7 @@
   const STATUS_REFRESH_MS = 60 * 1000;
   const TTL_MS = cfg.CART_TTL_MINUTES * 60 * 1000;
   const money = cfg.helpers.formatPrice;
+  const WAITER_MODE = (() => { try { return !!sessionStorage.getItem("rt-waiter"); } catch (_) { return false; } })();
 
   /* ======================================================================
      Tiny helpers
@@ -109,7 +110,7 @@
     tables: [],
     categories: [],
     items: [],
-    table: store.getFresh("table"),   // { id, label }
+    table: WAITER_MODE ? null : store.getFresh("table"),   // { id, label }
     cart: loadSavedCart(),            // { itemId: qty }
     category: "all",
     search: "",
@@ -637,6 +638,7 @@
 
       state.cart = {};
       store.del("cart");
+      if (WAITER_MODE) store.del("table"); // next table must be picked again
       state.placing = false;
       closeCart();
       updateCartBadge();
@@ -827,7 +829,7 @@
 
     // Extras (only active if the matching button exists in index.html)
     on("#call-waiter", "click", callWaiter);
-    on("#order-more", "click", enterMenu); // tracking keeps running; the banner shows progress
+    on("#order-more", "click", () => { if (WAITER_MODE) { state.table = null; store.del("table"); show("tables"); } else enterMenu(); }); // tracking keeps running; the banner shows progress
     on("#order-banner", "click", () => { show("success"); renderSuccess(); });
 
     // A broken photo should never leave a hole in the layout.
@@ -865,6 +867,7 @@
      ====================================================================== */
   async function init() {
     applyBranding();
+    if (WAITER_MODE) setText("#eyebrow", "Waiter mode · taking an order");
     applyFeatures();
     bindEvents();
     skeletonTables();

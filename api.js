@@ -49,6 +49,15 @@ const Api = (() => {
   if (!cfg) throw new Error("[api] config.js must be loaded before api.js");
   const { helpers } = cfg;
 
+  // Waiter mode: index.html?waiter=KEY remembers the key for this tab only.
+  const waiterKey = (() => {
+    try {
+      const p = new URLSearchParams(location.search).get("waiter");
+      if (p) sessionStorage.setItem("rt-waiter", p);
+      return sessionStorage.getItem("rt-waiter") || "";
+    } catch (_) { return ""; }
+  })();
+
   /* ======================================================================
      Utilities
      ====================================================================== */
@@ -430,7 +439,7 @@ const Api = (() => {
       request(helpers.url("ORDERS"), {
         method: "POST",
         body: payload,
-        headers: { "Idempotency-Key": payload.clientOrderId },
+        headers: { "Idempotency-Key": payload.clientOrderId, ...(waiterKey ? { "X-Waiter-Key": waiterKey } : {}) },
       }),
     getOrder: (id) => request(helpers.url("ORDERS", `/${encodeURIComponent(id)}`)),
     callWaiter: (payload) =>

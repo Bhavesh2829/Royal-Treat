@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#d92d20" />
+  <title>Owner Dashboard · Royal Treat</title>
+  <link rel="icon" href="royal-treat-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: { sans: ["DM Sans", "ui-sans-serif", "system-ui", "sans-serif"] },
+      colors: { brand: { DEFAULT: "#d92d20", dark: "#b42318", soft: "#fef0ee", line: "#fbd5d0" }, ink: "#101828", live: { DEFAULT: "#12a150", soft: "#e7f7ee" } },
+      boxShadow: { card: "0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06)" } } } };
+  </script>
+  <style>
+    body { background: #f6f8fb; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(217,45,32,.3); outline-offset: 1px; }
+    .tog { appearance: none; width: 36px; height: 20px; border-radius: 999px; background: #cbd5e1; position: relative; cursor: pointer; transition: .15s; flex-shrink: 0; }
+    .tog::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: .15s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+    .tog:checked { background: #12a150; } .tog:checked::after { left: 18px; }
+    .tog.veg:not(:checked) { background: #ef4444; } .tog.veg:checked { background: #12a150; }
+    dialog { border: 0; border-radius: 20px; padding: 0; width: min(520px, 94vw); box-shadow: 0 25px 60px rgba(16,24,40,.3); }
+    dialog::backdrop { background: rgba(15,23,42,.5); }
+    .lbl { display: block; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
+    .inp { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 9px 12px; font-size: 14px; background: #fff; }
+    .btn { border-radius: 10px; padding: 9px 14px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0; background: #fff; }
+    .btn:hover { background: #f8fafc; } .btn-red { background: #ef4444; border-color: #ef4444; color: #fff; } .btn-red:hover { background: #dc2626; }
+    @keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(217,45,32,0); } 50% { box-shadow: 0 0 0 4px rgba(217,45,32,.35); } }
+    .flash { animation: flash 1s ease 3; }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+
+<!-- ============ LOGIN ============ -->
+<div id="login" class="fixed inset-0 z-50 grid place-items-center bg-[#f6f8fb] p-4">
+  <form id="login-form" class="w-full max-w-sm rounded-3xl bg-white p-7 shadow-card">
+    <img src="royal-treat-logo.png" alt="" class="h-12 w-12 rounded-xl object-cover" />
+    <h1 class="mt-4 text-2xl font-extrabold tracking-tight">Owner dashboard</h1>
+    <p class="mt-1 text-sm text-slate-500">Royal Treat · QR Ordering System</p>
+    <label class="lbl mt-6" for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" class="inp" required />
+    <p id="login-err" class="mt-3 hidden rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700" role="alert"></p>
+    <button class="mt-5 w-full rounded-xl bg-brand py-3 text-sm font-bold text-white hover:bg-brand-dark">Log in</button>
+    <p class="mt-5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Powered by Webtizo Studio</p>
+  </form>
+</div>
+
+<div id="shell" class="mx-auto hidden max-w-6xl px-4 pb-16 pt-5 sm:px-6">
+  <!-- ============ HEADER ============ -->
+  <header class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
+    <div>
+      <h1 class="text-[26px] font-extrabold tracking-tight">Royal Treat <span class="text-brand">.</span></h1>
+      <p class="mt-0.5 flex items-center gap-2 text-sm text-slate-500">QR Ordering System
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-live/20 bg-live-soft px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-live"><span class="h-1.5 w-1.5 rounded-full bg-live"></span>Live dashboard</span>
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <span class="flex items-center gap-1.5 text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-live"></span>Live · <span id="clock">--:--</span></span>
+      <button id="sound" class="btn">🔔 Sound on</button>
+      <button id="logout" class="btn">Log out</button>
+      <span class="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:inline">Powered by <span class="text-slate-600">Webtizo Studio</span></span>
+    </div>
+  </header>
+
+  <!-- ============ STATS ============ -->
+  <section class="mt-5 grid gap-4 sm:grid-cols-3" aria-label="Today at a glance">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's sales</p><p id="st-sales" class="mt-1.5 text-3xl font-extrabold">₹0</p><p class="mt-1 text-[11px] text-slate-400">Updated every 15 seconds</p></div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active orders <span class="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-400"></span></p><p id="st-active" class="mt-1.5 text-3xl font-extrabold text-brand">0</p><p class="mt-1 text-[11px] text-slate-400">New and being prepared</p></div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Items served today</p><p id="st-items" class="mt-1.5 text-3xl font-extrabold">0</p><p id="st-items-sub" class="mt-1 text-[11px] text-slate-400">Across 0 completed orders</p></div>
+  </section>
+
+  <!-- ============ TABS ============ -->
+  <nav class="mt-6 flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 text-sm font-bold" role="tablist">
+    <button data-tab="orders" class="tab rounded-lg px-4 py-2">Orders</button>
+    <button data-tab="menu" class="tab rounded-lg px-4 py-2">Menu</button>
+    <button data-tab="waiters" class="tab rounded-lg px-4 py-2">Waiters</button>
+    <button data-tab="settings" class="tab rounded-lg px-4 py-2">Settings</button>
+  </nav>
+
+  <!-- ============ ORDERS ============ -->
+  <section id="tab-orders" class="mt-4">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+      <div class="flex items-center justify-between"><h2 class="text-lg font-extrabold">Incoming Orders</h2><button id="refresh" class="text-xs font-bold text-brand">Refresh</button></div>
+      <div id="orders" class="mt-4 grid gap-3 md:grid-cols-2"></div>
+      <div class="mt-5 border-t border-slate-100 pt-4">
+        <button id="load-history" class="btn">Show today's completed orders</button>
+        <div id="history" class="mt-3 grid gap-3 md:grid-cols-2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MENU ============ -->
+  <section id="tab-menu" class="mt-4 hidden">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+      <h2 class="text-lg font-extrabold">Menu Configuration</h2>
+      <form id="add-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[1fr_110px_170px_auto_auto]">
+        <div><label class="lbl" for="a-name">Dish name</label><input id="a-name" class="inp" placeholder="e.g. Tandoori Chicken" required maxlength="80" /></div>
+        <div><label class="lbl" for="a-price">Price (₹)</label><input id="a-price" type="number" min="1" step="any" class="inp" placeholder="0" required /></div>
+        <div><label class="lbl" for="a-cat">Category</label><select id="a-cat" class="inp"></select></div>
+        <label class="flex items-center gap-2 pb-2 text-[11px] font-bold uppercase text-slate-500"><input id="a-veg" type="checkbox" class="tog veg" /><span id="a-veg-t">Non-Veg</span></label>
+        <button class="btn btn-red pb-2.5 pt-2.5">Add item</button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <input id="m-search" class="inp max-w-[260px]" placeholder="Search dish or category…" aria-label="Search dishes" />
+        <button id="add-cat" class="btn">+ Category</button>
+        <span id="m-count" class="ml-auto text-xs text-slate-400">0 dishes</span>
+        <button id="import-starter" class="btn">Load starter menu</button>
+        <button id="import-csv" class="btn">Import CSV</button>
+        <input id="csv-file" type="file" accept=".csv,text/csv" class="hidden" />
+      </div>
+      <p class="mt-2 text-[11px] text-slate-400">CSV columns: name, price, category, veg (yes/no). Price on request? leave price empty and write APS in a 5th column.</p>
+      <div class="mt-3 max-h-[560px] overflow-auto rounded-xl border border-slate-200">
+        <table class="w-full text-left text-sm">
+          <thead class="sticky top-0 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <tr><th class="px-4 py-3">Dish name</th><th class="px-3 py-3">Category</th><th class="px-3 py-3">Type</th><th class="px-3 py-3">Price</th><th class="px-3 py-3">Available</th><th class="px-4 py-3 text-right">Actions</th></tr>
+          </thead>
+          <tbody id="m-rows" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WAITERS ============ -->
+  <section id="tab-waiters" class="mt-4 hidden">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+      <h2 class="text-lg font-extrabold">Waiters</h2>
+      <p class="mt-1 text-sm text-slate-500">Add a waiter's mobile number. They get a private link that shows only their orders. Assign tables, or leave empty and orders are shared fairly.</p>
+      <form id="w-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[1fr_1fr_1.2fr_auto]">
+        <input type="hidden" id="w-id" />
+        <div><label class="lbl" for="w-name">Name</label><input id="w-name" class="inp" required maxlength="40" /></div>
+        <div><label class="lbl" for="w-phone">Mobile number</label><input id="w-phone" class="inp" inputmode="numeric" maxlength="14" placeholder="10 digits" required /></div>
+        <div><label class="lbl" for="w-tables">Tables (optional)</label><input id="w-tables" class="inp" placeholder="1, 2, 3 or T01, T02" /></div>
+        <div class="flex gap-2"><button class="btn btn-red" id="w-submit">Add waiter</button><button type="button" id="w-cancel" class="btn hidden">Cancel</button></div>
+      </form>
+      <div id="w-list" class="mt-4 grid gap-3 md:grid-cols-2"></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="tab-settings" class="mt-4 hidden">
+    <div class="max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+      <h2 class="text-lg font-extrabold">Restaurant settings</h2>
+      <form id="s-form" class="mt-4 space-y-4">
+        <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><span><span class="block text-sm font-bold">Accepting orders</span><span class="text-xs text-slate-500">Turn off to pause all new orders.</span></span><input id="s-open" type="checkbox" class="tog" /></label>
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div><label class="lbl" for="s-gst">GST %</label><input id="s-gst" type="number" min="0" max="100" step="any" class="inp" /></div>
+          <div><label class="lbl" for="s-svc">Service charge %</label><input id="s-svc" type="number" min="0" max="100" step="any" class="inp" /></div>
+          <div><label class="lbl" for="s-tables">Number of tables</label><input id="s-tables" type="number" min="1" max="200" class="inp" /></div>
+        </div>
+        <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><span><span class="block text-sm font-bold">Menu prices already include GST</span><span class="text-xs text-slate-500">Confirm the correct tax treatment with your accountant.</span></span><input id="s-incl" type="checkbox" class="tog" /></label>
+        <p class="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Also set the same GST / service values in <code>config.js</code> so the customer's cart preview matches. The server's values decide the final bill.</p>
+        <div class="flex items-center gap-3"><button class="btn btn-red">Save settings</button><a href="qr-codes.html" class="text-xs font-bold text-brand">Print table QR codes →</a></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- Edit dish dialog -->
+<dialog id="dlg">
+  <form id="edit-form" class="p-6">
+    <h3 class="text-lg font-extrabold">Edit dish</h3>
+    <input type="hidden" id="e-id" />
+    <div class="mt-4 grid gap-3">
+      <div><label class="lbl" for="e-name">Dish name</label><input id="e-name" class="inp" required maxlength="80" /></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl" for="e-price">Price (₹)</label><input id="e-price" type="number" min="0" step="any" class="inp" /></div>
+        <div><label class="lbl" for="e-label">Or price label (e.g. APS)</label><input id="e-label" class="inp" maxlength="20" /></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl" for="e-cat">Category</label><select id="e-cat" class="inp"></select></div>
+        <label class="flex items-center gap-2 pt-5 text-[11px] font-bold uppercase text-slate-500"><input id="e-veg" type="checkbox" class="tog veg" /><span id="e-veg-t">Non-Veg</span></label>
+      </div>
+      <div><label class="lbl" for="e-desc">Description (optional)</label><input id="e-desc" class="inp" maxlength="300" /></div>
+      <div><label class="lbl" for="e-img">Photo link (optional)</label><input id="e-img" class="inp" placeholder="https://…" /></div>
+    </div>
+    <div class="mt-5 flex justify-end gap-2"><button type="button" id="e-cancel" class="btn">Cancel</button><button class="btn btn-red">Save</button></div>
+  </form>
+</dialog>
+
+<div id="toast" class="pointer-events-none fixed inset-x-0 bottom-6 z-[60] mx-auto flex max-w-sm translate-y-4 justify-center px-4 opacity-0 transition duration-300"><div class="rounded-full bg-ink px-5 py-3 text-center text-sm font-semibold text-white shadow-xl"></div></div>
+
+<script src="menu-data.js"></script>
+<script>
+(() => {
+  "use strict";
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const money = (n) => "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+  const tm = (ms) => new Date(ms).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+  let token = localStorage.getItem("rt-admin") || "";
+  let sound = localStorage.getItem("rt-sound") !== "off";
+  let seen = null, menu = { categories: [], items: [] }, waiters = [], timer = null;
+
+  /* ---------- helpers ---------- */
+  let tt; function toast(m) { const el = $("#toast"); $("div", el).textContent = m; el.classList.remove("opacity-0", "translate-y-4"); clearTimeout(tt); tt = setTimeout(() => el.classList.add("opacity-0", "translate-y-4"), 2600); }
+  async function call(action, data = {}) {
+    const r = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + token }, body: JSON.stringify({ action, ...data }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401 && action !== "login") { logout(); throw new Error("Please log in again"); }
+    if (!r.ok) throw new Error(j.message || "Something went wrong");
+    return j;
+  }
+  const run = (p) => p.catch((e) => { toast(e.message); throw e; });
+  function beep() {
+    if (!sound) return;
+    try {
+      const c = new (window.AudioContext || window.webkitAudioContext)();
+      [880, 1175, 880].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + i * 0.2; o.frequency.value = f; o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.start(t); o.stop(t + 0.19); });
+    } catch (_) {}
+  }
+  const paintSound = () => { $("#sound").textContent = sound ? "🔔 Sound on" : "🔕 Sound off"; };
+
+  /* ---------- login / logout ---------- */
+  $("#login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = $("#login-err"); err.classList.add("hidden");
+    try {
+      const r = await call("login", { password: $("#pw").value });
+      token = r.token; localStorage.setItem("rt-admin", token); $("#pw").value = ""; start();
+    } catch (x) { err.textContent = x.message; err.classList.remove("hidden"); }
+  });
+  function logout() { token = ""; localStorage.removeItem("rt-admin"); clearInterval(timer); seen = null; $("#shell").classList.add("hidden"); $("#login").classList.remove("hidden"); }
+  $("#logout").onclick = logout;
+  $("#sound").onclick = () => { sound = !sound; localStorage.setItem("rt-sound", sound ? "on" : "off"); paintSound(); beep(); };
+
+  /* ---------- tabs ---------- */
+  function tab(name) {
+    ["orders", "menu", "waiters", "settings"].forEach((t) => $("#tab-" + t).classList.toggle("hidden", t !== name));
+    $$(".tab").forEach((b) => { const on = b.dataset.tab === name; b.className = "tab rounded-lg px-4 py-2 " + (on ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"); });
+    try { sessionStorage.setItem("rt-tab", name); } catch (_) {}
+  }
+  $$(".tab").forEach((b) => b.addEventListener("click", () => tab(b.dataset.tab)));
+
+  /* ---------- orders ---------- */
+  const NEXT = { received: ["preparing", "Start preparing"], preparing: ["ready", "Mark ready"], ready: ["served", "Mark served"] };
+  const BADGE = { received: "bg-red-50 text-red-600", preparing: "bg-amber-50 text-amber-700", ready: "bg-emerald-50 text-emerald-700", served: "bg-slate-100 text-slate-600", cancelled: "bg-slate-100 text-slate-500" };
+  const LABEL = { received: "New", preparing: "Preparing", ready: "Ready", served: "Served", cancelled: "Cancelled" };
+
+  function orderCard(o, fresh) {
+    const nx = NEXT[o.status];
+    const lines = (o.items || []).map((i) => `<li class="flex justify-between gap-2"><span>${esc(i.name)} <span class="text-slate-400">× ${i.qty}</span></span><span class="font-semibold">${money(i.price * i.qty)}</span></li>`).join("");
+    return `<article class="rounded-2xl border border-slate-200 p-4 ${fresh ? "flash" : ""}">
+      <div class="flex items-start justify-between gap-2">
+        <div><p class="text-base font-extrabold">#${esc(o.number)} · Table ${esc(String(o.table).replace(/^T0*/, ""))}</p>
+          <p class="text-[11px] text-slate-500">${tm(o.createdAtMs)} · ${o.placedBy === "waiter" ? "Taken by waiter" : "Customer QR"}${o.waiterName ? " · 🧑‍🍳 " + esc(o.waiterName) : " · No waiter assigned"}</p></div>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${BADGE[o.status] || ""}">${LABEL[o.status] || esc(o.status)}</span>
+      </div>
+      <ul class="mt-3 space-y-1 text-sm">${lines}</ul>
+      ${o.notes ? `<p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">📝 ${esc(o.notes)}</p>` : ""}
+      ${o.customer && (o.customer.name || o.customer.phone) ? `<p class="mt-2 text-[11px] text-slate-500">${esc(o.customer.name)} ${esc(o.customer.phone)}</p>` : ""}
+      <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+        <span class="text-sm font-extrabold">${money(o.total)} <span class="text-[10px] font-semibold text-slate-400">incl. tax · pay at counter</span></span>
+        ${nx ? `<div class="flex gap-2"><button data-st="${esc(o.id)}|cancelled" class="btn text-red-600">Cancel</button><button data-st="${esc(o.id)}|${nx[0]}" class="btn btn-red">${nx[1]}</button></div>` : ""}
+      </div></article>`;
+  }
+
+  async function refresh() {
+    try {
+      const { orders, stats } = await call("dashboard");
+      const ids = new Set(orders.map((o) => o.id));
+      const fresh = new Set(seen ? orders.filter((o) => !seen.has(o.id)).map((o) => o.id) : []);
+      if (fresh.size) { beep(); toast(`${fresh.size} new order${fresh.size > 1 ? "s" : ""}!`); }
+      seen = ids;
+      $("#st-sales").textContent = money(stats.sales);
+      $("#st-active").textContent = orders.length;
+      $("#st-items").textContent = stats.itemsServed;
+      $("#st-items-sub").textContent = `Across ${stats.servedOrders} completed order${stats.servedOrders === 1 ? "" : "s"}`;
+      $("#orders").innerHTML = orders.length
+        ? orders.map((o) => orderCard(o, fresh.has(o.id))).join("")
+        : `<div class="col-span-full grid place-items-center py-16 text-center"><p class="text-4xl text-slate-300">🖥️</p><p class="mt-2 text-sm font-bold text-slate-500">No new orders right now.</p></div>`;
+    } catch (_) {}
+  }
+  $("#refresh").onclick = refresh;
+  $("#orders").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-st]"); if (!b) return;
+    const [id, status] = b.dataset.st.split("|");
+    if (status === "cancelled" && !confirm("Cancel this order?")) return;
+    b.disabled = true;
+    try { await run(call("status", { id, status })); } catch (_) {}
+    refresh();
+  });
+  $("#load-history").onclick = async () => {
+    try {
+      const { orders } = await run(call("history"));
+      $("#history").innerHTML = orders.length ? orders.map((o) => orderCard(o, false)).join("") : `<p class="text-sm text-slate-400">Nothing completed yet today.</p>`;
+    } catch (_) {}
+  };
+
+  /* ---------- menu ---------- */
+  const catName = (id) => (menu.categories.find((c) => c.id === id) || {}).name || id;
+  function paintMenu() {
+    const opts = menu.categories.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+    const keep = [$("#a-cat").value, $("#e-cat").value];
+    $("#a-cat").innerHTML = opts; $("#e-cat").innerHTML = opts;
+    if (keep[0]) $("#a-cat").value = keep[0];
+    const q = $("#m-search").value.trim().toLowerCase();
+    const rows = menu.items.filter((i) => !q || i.name.toLowerCase().includes(q) || catName(i.category).toLowerCase().includes(q));
+    $("#m-count").textContent = `${menu.items.length} dishes`;
+    $("#m-rows").innerHTML = rows.map((i) => `<tr>
+      <td class="px-4 py-3 font-bold">${esc(i.name)}</td>
+      <td class="px-3 py-3 text-slate-600">${esc(catName(i.category))}</td>
+      <td class="px-3 py-3"><span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full ${i.veg ? "bg-green-500" : "bg-red-500"}"></span>${i.veg ? "Veg" : "Non-Veg"}</span></td>
+      <td class="px-3 py-3 font-extrabold">${i.price ? money(i.price) : esc(i.priceLabel || "—")}</td>
+      <td class="px-3 py-3"><input type="checkbox" class="tog" data-tg="${esc(i.id)}" ${i.available !== false ? "checked" : ""} aria-label="Available: ${esc(i.name)}" /></td>
+      <td class="px-4 py-3 text-right"><button data-ed="${esc(i.id)}" class="btn !px-2.5 !py-1.5">Edit</button> <button data-del="${esc(i.id)}" class="btn !px-2.5 !py-1.5 border-transparent text-red-600">Delete</button></td></tr>`).join("")
+      || `<tr><td colspan="6" class="px-4 py-10 text-center text-slate-400">No dishes yet. Click “Load starter menu” to begin.</td></tr>`;
+  }
+  const setMenu = (r) => { menu = r.menu; paintMenu(); };
+  $("#m-search").addEventListener("input", paintMenu);
+  $("#a-veg").onchange = (e) => { $("#a-veg-t").textContent = e.target.checked ? "Veg" : "Non-Veg"; };
+  $("#e-veg").onchange = (e) => { $("#e-veg-t").textContent = e.target.checked ? "Veg" : "Non-Veg"; };
+
+  $("#add-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      setMenu(await run(call("item_save", { item: { name: $("#a-name").value, price: $("#a-price").value, category: $("#a-cat").value, veg: $("#a-veg").checked } })));
+      e.target.reset(); $("#a-veg-t").textContent = "Non-Veg"; toast("Dish added");
+    } catch (_) {}
+  });
+  $("#m-rows").addEventListener("change", async (e) => {
+    const id = e.target.dataset.tg; if (!id) return;
+    try { setMenu(await run(call("item_toggle", { id, available: e.target.checked }))); } catch (_) { e.target.checked = !e.target.checked; }
+  });
+  $("#m-rows").addEventListener("click", async (e) => {
+    const ed = e.target.closest("[data-ed]"), del = e.target.closest("[data-del]");
+    if (ed) {
+      const i = menu.items.find((x) => String(x.id) === ed.dataset.ed); if (!i) return;
+      $("#e-id").value = i.id; $("#e-name").value = i.name; $("#e-price").value = i.price || ""; $("#e-label").value = i.priceLabel || "";
+      $("#e-cat").value = i.category; $("#e-veg").checked = !!i.veg; $("#e-veg-t").textContent = i.veg ? "Veg" : "Non-Veg";
+      $("#e-desc").value = i.description || ""; $("#e-img").value = i.image || ""; $("#dlg").showModal();
+    }
+    if (del && confirm("Delete this dish?")) { try { setMenu(await run(call("item_delete", { id: del.dataset.del }))); toast("Deleted"); } catch (_) {} }
+  });
+  $("#e-cancel").onclick = () => $("#dlg").close();
+  $("#edit-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const old = menu.items.find((x) => String(x.id) === $("#e-id").value) || {};
+    try {
+      setMenu(await run(call("item_save", { item: { id: $("#e-id").value, name: $("#e-name").value, price: $("#e-price").value, priceLabel: $("#e-label").value, category: $("#e-cat").value, veg: $("#e-veg").checked, description: $("#e-desc").value, image: $("#e-img").value, available: old.available !== false } })));
+      $("#dlg").close(); toast("Saved");
+    } catch (_) {}
+  });
+  $("#add-cat").onclick = async () => {
+    const name = prompt("New category name (e.g. Starters)"); if (!name) return;
+    try { setMenu(await run(call("cat_save", { name }))); toast("Category added"); } catch (_) {}
+  };
+  $("#import-starter").onclick = async () => {
+    if (!window.MOCK_MENU) return toast("Starter menu file not found");
+    if (!confirm("Load the 91-dish Royal Treat starter menu? Existing dishes with the same ID are updated. Check prices against your printed menu afterwards.")) return;
+    try {
+      const r = await run(call("menu_import", { categories: MOCK_MENU.categories, items: MOCK_MENU.items }));
+      setMenu(r); toast(`${r.added} added, ${r.updated} updated, ${r.skipped} skipped`);
+    } catch (_) {}
+  };
+  function parseCsv(text) {
+    return text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+      const out = []; let cur = "", q = false;
+      for (const ch of l) { if (ch === '"') q = !q; else if (ch === "," && !q) { out.push(cur.trim()); cur = ""; } else cur += ch; }
+      out.push(cur.trim()); return out;
+    });
+  }
+  $("#import-csv").onclick = () => $("#csv-file").click();
+  $("#csv-file").addEventListener("change", async (e) => {
+    const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+    const rows = parseCsv(await f.text());
+    if (rows.length && /name/i.test(rows[0][0]) && !/^\d/.test(rows[0][1] || "")) rows.shift();
+    const items = rows.map(([name, price, cat, veg, label]) => ({ name, price, categoryName: cat, veg: /^(y|yes|veg|true|1)$/i.test(veg || ""), priceLabel: label }));
+    try { const r = await run(call("menu_import", { items })); setMenu(r); toast(`${r.added} added, ${r.skipped} skipped`); } catch (_) {}
+  });
+
+  /* ---------- waiters ---------- */
+  const wLink = (w) => `${location.origin}/waiter.html?k=${w.key}`;
+  function paintWaiters() {
+    $("#w-list").innerHTML = waiters.length ? waiters.map((w) => `<article class="rounded-2xl border border-slate-200 p-4">
+      <div class="flex items-start justify-between gap-2"><div><p class="font-extrabold">${esc(w.name)}</p><p class="text-xs text-slate-500">📞 ${esc(w.phone)} · Tables: ${(w.tables || []).length ? esc(w.tables.join(", ")) : "shared"}</p></div>
+        <label class="flex items-center gap-2 text-[11px] font-bold text-slate-500">Active <input type="checkbox" class="tog" data-wa="${esc(w.id)}" ${w.active !== false ? "checked" : ""} /></label></div>
+      <p class="mt-3 truncate rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-500">${esc(wLink(w))}</p>
+      <div class="mt-3 flex flex-wrap gap-2"><button class="btn" data-cp="${esc(w.id)}">Copy link</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/91${esc(w.phone)}?text=${encodeURIComponent("Hi " + w.name + ", your Royal Treat waiter link: " + wLink(w))}">WhatsApp link</a><button class="btn" data-we="${esc(w.id)}">Edit</button><button class="btn border-transparent text-red-600" data-wd="${esc(w.id)}">Delete</button></div></article>`).join("")
+      : `<p class="col-span-full py-8 text-center text-sm text-slate-400">No waiters yet. Add one above.</p>`;
+  }
+  const setW = (r) => { waiters = r.waiters; paintWaiters(); };
+  function resetW() { $("#w-form").reset(); $("#w-id").value = ""; $("#w-submit").textContent = "Add waiter"; $("#w-cancel").classList.add("hidden"); }
+  $("#w-cancel").onclick = resetW;
+  $("#w-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const cur = waiters.find((w) => w.id === $("#w-id").value);
+    try { setW(await run(call("waiter_save", { id: $("#w-id").value || undefined, name: $("#w-name").value, phone: $("#w-phone").value, tables: $("#w-tables").value, active: cur ? cur.active !== false : true }))); resetW(); toast("Waiter saved"); } catch (_) {}
+  });
+  $("#w-list").addEventListener("click", async (e) => {
+    const cp = e.target.closest("[data-cp]"), we = e.target.closest("[data-we]"), wd = e.target.closest("[data-wd]");
+    if (cp) { const w = waiters.find((x) => x.id === cp.dataset.cp); try { await navigator.clipboard.writeText(wLink(w)); toast("Link copied"); } catch (_) { prompt("Copy this link", wLink(w)); } }
+    if (we) { const w = waiters.find((x) => x.id === we.dataset.we); $("#w-id").value = w.id; $("#w-name").value = w.name; $("#w-phone").value = w.phone; $("#w-tables").value = (w.tables || []).join(", "); $("#w-submit").textContent = "Save changes"; $("#w-cancel").classList.remove("hidden"); $("#w-name").focus(); }
+    if (wd && confirm("Delete this waiter? Their link will stop working.")) { try { setW(await run(call("waiter_delete", { id: wd.dataset.wd }))); } catch (_) {} }
+  });
+  $("#w-list").addEventListener("change", async (e) => {
+    const id = e.target.dataset.wa; if (!id) return;
+    const w = waiters.find((x) => x.id === id);
+    try { setW(await run(call("waiter_save", { id, name: w.name, phone: w.phone, tables: (w.tables || []).join(","), active: e.target.checked }))); } catch (_) { e.target.checked = !e.target.checked; }
+  });
+
+  /* ---------- settings ---------- */
+  function paintSettings(s) { $("#s-open").checked = !!s.isOpen; $("#s-gst").value = s.gstPercent; $("#s-svc").value = s.servicePercent; $("#s-tables").value = s.tableCount; $("#s-incl").checked = !!s.pricesIncludeTax; }
+  $("#s-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try { const r = await run(call("settings_save", { isOpen: $("#s-open").checked, gstPercent: $("#s-gst").value, servicePercent: $("#s-svc").value, tableCount: $("#s-tables").value, pricesIncludeTax: $("#s-incl").checked })); paintSettings(r.settings); toast("Settings saved"); } catch (_) {}
+  });
+
+  /* ---------- boot ---------- */
+  async function start() {
+    $("#login").classList.add("hidden"); $("#shell").classList.remove("hidden");
+    paintSound();
+    let saved = "orders"; try { saved = sessionStorage.getItem("rt-tab") || "orders"; } catch (_) {}
+    tab(saved);
+    clearInterval(timer);
+    await refresh();
+    timer = setInterval(() => { if (!document.hidden) refresh(); }, 15000);
+    try { setMenu(await call("menu_get")); setW(await call("waiters_list")); paintSettings((await call("settings_get")).settings); } catch (_) {}
+  }
+  setInterval(() => { $("#clock").textContent = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); }, 1000);
+  if (token) start();
+})();
+</script>
+</body>
+</html>
