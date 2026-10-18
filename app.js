@@ -128,6 +128,7 @@
      ====================================================================== */
   function show(view) {
     state.view = view;
+    hideOrderSent();
     ["tables", "menu", "success"].forEach((v) => setHidden("#view-" + v, v !== view));
     window.scrollTo({ top: 0, behavior: "auto" });
   }
@@ -643,7 +644,11 @@
       closeCart();
       updateCartBadge();
       renderItems();
-      showSuccess();
+      // Stay on the menu and show the small "sent" bar instead of the full confirmation page.
+      startTracking();
+      if (WAITER_MODE) show("tables");
+      renderBanner();
+      showOrderSent();
     } catch (e) {
       state.placing = false;
       renderCart();
@@ -656,6 +661,29 @@
      ====================================================================== */
   let trackTimer = null;
   const stopTracking = () => { clearTimeout(trackTimer); trackTimer = null; };
+
+  /* ---------- "Order sent" bottom bar ---------- */
+  let sentTimer;
+  function showOrderSent() {
+    const bar = $("#order-sent"), o = state.order;
+    if (!bar || !o) return showSuccess(); // old markup: fall back to the full page
+    const label = (state.tables.find((t) => t.id === o.table) || {}).label || o.table;
+    setText("#os-title", `#${o.number ?? o.id} · ${label}`);
+    setHidden("#os-track", !cfg.FEATURES.ORDER_TRACKING);
+    const prog = bar.querySelector(".sent-progress");
+    if (prog) { prog.style.animation = "none"; void prog.offsetWidth; prog.style.animation = ""; }
+    bar.removeAttribute("inert");
+    bar.classList.remove("translate-y-[140%]", "opacity-0", "pointer-events-none");
+    clearTimeout(sentTimer);
+    sentTimer = setTimeout(hideOrderSent, 8000);
+  }
+  function hideOrderSent() {
+    const bar = $("#order-sent");
+    if (!bar) return;
+    clearTimeout(sentTimer);
+    bar.setAttribute("inert", "");
+    bar.classList.add("translate-y-[140%]", "opacity-0", "pointer-events-none");
+  }
 
   function showSuccess() {
     show("success");
@@ -831,6 +859,8 @@
     on("#call-waiter", "click", callWaiter);
     on("#order-more", "click", () => { if (WAITER_MODE) { state.table = null; store.del("table"); show("tables"); } else enterMenu(); }); // tracking keeps running; the banner shows progress
     on("#order-banner", "click", () => { show("success"); renderSuccess(); });
+    on("#os-track", "click", () => { show("success"); renderSuccess(); });
+    on("#os-close", "click", hideOrderSent);
 
     // A broken photo should never leave a hole in the layout.
     document.addEventListener("error", (e) => {

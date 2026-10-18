@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#d92d20" />
+  <meta name="theme-color" content="#b91c2e" />
   <meta name="color-scheme" content="light" />
   <meta name="robots" content="noindex" />
   <meta name="description" content="Browse the menu and order straight from your table." />
@@ -23,13 +23,14 @@
         extend: {
           fontFamily: { sans: ["DM Sans", "ui-sans-serif", "system-ui", "sans-serif"] },
           colors: {
-            brand: { DEFAULT: "#d92d20", dark: "#b42318", soft: "#fef0ee", line: "#fbd5d0" },
+            brand: { DEFAULT: "#b91c2e", dark: "#8f1424", soft: "#fdf1f2", line: "#f6cfd3" },
             ink: "#101828",
+            gold: "#b8893a",
             live: { DEFAULT: "#12a150", soft: "#e7f7ee" },
           },
           boxShadow: {
             card: "0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06)",
-            lift: "0 10px 30px rgba(217,45,32,.28)",
+            lift: "0 10px 30px rgba(185,28,46,.28)",
           },
         },
       },
@@ -37,14 +38,14 @@
   </script>
 
   <style>
-    :root { --brand-rgb: 217, 45, 32; }
+    :root { --brand-rgb: 185, 28, 46; }
     html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
-    body { background: #f6f8fb; font-feature-settings: "ss01", "cv11"; overscroll-behavior-y: none; }
+    body { background: #faf7f2; font-feature-settings: "ss01", "cv11"; overscroll-behavior-y: none; }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .hero-bg { background: linear-gradient(135deg, #ffffff 0%, #fff6f2 55%, #ffe9e1 100%); }
+    .hero-bg { background: linear-gradient(135deg, #ffffff 0%, #fffaf3 55%, #f6e7da 100%); }
 
     .skeleton { background: linear-gradient(90deg, #eef1f5 25%, #f8fafc 37%, #eef1f5 63%); background-size: 400% 100%; animation: shimmer 1.3s infinite; }
     @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
@@ -65,6 +66,17 @@
 
     /* Keyboard focus ring for every control */
     button:focus-visible, a:focus-visible { outline: 3px solid rgba(var(--brand-rgb), .35); outline-offset: 2px; }
+
+
+    /* ---- Royal polish (visual only) ---- */
+    body { background: radial-gradient(900px 420px at 50% -120px, #f6e7da 0%, #faf7f2 60%); background-attachment: fixed; }
+    .hero-bg { box-shadow: 0 1px 0 #fff inset, 0 14px 40px rgba(143,20,36,.10); }
+    article[data-item] { transition: transform .2s ease, box-shadow .2s ease; }
+    article[data-item]:active { transform: scale(.992); }
+    #cart-sheet { box-shadow: 0 -20px 60px rgba(16,24,40,.25); }
+    #order-sent { transition: transform .45s cubic-bezier(.2,.9,.3,1.1), opacity .3s ease; }
+    #order-sent .sent-progress { transform-origin: left; animation: sentbar 8s linear forwards; }
+    @keyframes sentbar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
@@ -91,7 +103,7 @@
         </div>
 
         <p class="mt-9 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
-          <span class="h-2 w-2 rounded-full bg-orange-500"></span><span id="eyebrow">A better way to dine</span>
+          <span class="h-2 w-2 rounded-full bg-gold"></span><span id="eyebrow">A better way to dine</span>
         </p>
         <h2 class="mt-3 text-[44px] font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">
           <span id="headline-1">Good food,</span><br /><span id="headline-2" class="text-brand">great moments.</span>
@@ -119,7 +131,7 @@
       <h1 class="sr-only">Menu</h1>
 
       <!-- Sticky header: table, cart, search -->
-      <div class="sticky top-0 z-30 bg-[#f6f8fb]/90 px-2 pb-2 pt-2 backdrop-blur-xl sm:px-4">
+      <div class="sticky top-0 z-30 bg-[#faf7f2]/90 px-2 pb-2 pt-2 backdrop-blur-xl sm:px-4">
         <div class="relative overflow-hidden rounded-xl border border-slate-200/60 bg-white p-2 shadow-[0_2px_15px_rgb(0,0,0,0.04)]">
 
           <div class="flex items-center justify-between gap-2">
@@ -244,6 +256,26 @@
       </button>
     </div>
   </aside>
+
+  <!-- Order sent bar (replaces the full "Order placed" page) -->
+  <div id="order-sent" inert role="status" aria-live="polite" class="pointer-events-none fixed inset-x-0 bottom-0 z-[55] mx-auto w-full max-w-xl translate-y-[140%] px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] opacity-0">
+    <div class="relative overflow-hidden rounded-2xl bg-ink p-2.5 pr-3 text-white shadow-[0_18px_40px_rgba(16,24,40,.35)] ring-1 ring-white/10">
+      <div class="flex items-center gap-3">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-live/15 text-live">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Sent to kitchen</p>
+          <p id="os-title" class="truncate text-[17px] font-extrabold leading-tight">Order placed</p>
+        </div>
+        <button id="os-track" type="button" class="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-[12px] font-extrabold uppercase tracking-wide text-white shadow-lift transition hover:bg-brand-dark active:scale-95">Track order</button>
+        <button id="os-close" type="button" aria-label="Dismiss" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-white/10 hover:text-white">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <span class="sent-progress absolute inset-x-0 bottom-0 h-[3px] bg-live/70"></span>
+    </div>
+  </div>
 
   <!-- Toast -->
   <div id="toast" class="pointer-events-none fixed inset-x-0 bottom-6 z-[60] mx-auto flex max-w-xs translate-y-4 justify-center px-4 opacity-0 transition duration-300"><div class="rounded-full bg-ink px-5 py-3 text-center text-sm font-semibold text-white shadow-xl"></div></div>
