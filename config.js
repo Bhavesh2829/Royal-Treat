@@ -57,8 +57,8 @@
     // true  = runs fully in the browser (localStorage) for demo / design review
     // false = talks to your REST API at API_BASE_URL
     USE_MOCK: false,
-    API_BASE_URL: "https://royal-treat.vercel.app/api",
-    API_HEADERS: {
+    API_BASE_URL: "/api",
+   API_HEADERS: {
       // Only PUBLIC keys belong here. Never put secrets in front-end code.
       // "Authorization": "Bearer <public-key>",
       // "X-Restaurant-Id": "royal-treat",
@@ -144,7 +144,7 @@
   );
 
   if (!SETTINGS.USE_MOCK) {
-    if (!/^https?:\/\//i.test(SETTINGS.API_BASE_URL)) {
+   if (!/^(https?:\/\/|\/)/i.test(SETTINGS.API_BASE_URL)) {
       errors.push(
         "API_BASE_URL must start with http:// or https:// when USE_MOCK is false.",
       );
