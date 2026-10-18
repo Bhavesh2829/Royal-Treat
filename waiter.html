@@ -18,7 +18,7 @@
   <style>
     body { background: #f6f8fb; }
     button:focus-visible, a:focus-visible { outline: 3px solid rgba(217,45,32,.35); outline-offset: 2px; }
-    @keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(217,45,32,0); } 50% { box-shadow: 0 0 0 5px rgba(217,45,32,.35); } }
+    @keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(18,161,80,0); } 50% { box-shadow: 0 0 0 6px rgba(18,161,80,.4); } }
     .flash { animation: flash 1s ease 3; }
   </style>
 </head>
@@ -33,10 +33,11 @@
       <button id="sound" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">🔔 Sound on</button>
     </div>
     <div class="mt-3 grid grid-cols-2 gap-2">
-      <a id="take" href="index.html" class="rounded-xl bg-brand py-3 text-center text-sm font-bold text-white hover:bg-brand-dark">+ Take an order</a>
-      <div class="rounded-xl bg-slate-50 py-2 text-center"><p id="count" class="text-xl font-extrabold text-brand">0</p><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active orders</p></div>
+      <a id="take" href="index.html" class="grid place-items-center rounded-xl bg-brand py-3 text-center text-sm font-bold text-white hover:bg-brand-dark">+ Take an order</a>
+      <div class="rounded-xl bg-slate-50 py-2 text-center"><p id="count" class="text-xl font-extrabold text-brand">0</p><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active orders</p><p id="ready-count" class="text-[10px] font-extrabold uppercase tracking-wider text-live"></p></div>
     </div>
     <p id="tables" class="mt-2 hidden text-xs text-slate-500"></p>
+    <p id="snd-hint" class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">🔔 Tap anywhere once to turn on sound alerts for ready orders.</p>
   </header>
 
   <p id="err" class="mt-4 hidden rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert"></p>
@@ -44,48 +45,78 @@
   <p class="mt-8 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Powered by Webtizo</p>
 </div>
 
+<div id="toast" class="pointer-events-none fixed inset-x-0 bottom-6 z-[60] mx-auto flex max-w-sm translate-y-4 justify-center px-4 opacity-0 transition duration-300"><div class="rounded-full bg-ink px-5 py-3 text-center text-sm font-semibold text-white shadow-xl"></div></div>
+
 <script>
 (() => {
   "use strict";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const tm = (ms) => new Date(ms).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const tbl = (t) => esc(String(t).replace(/^T0*/, ""));
+  const ago = (ms) => { const m = Math.max(0, Math.floor((Date.now() - ms) / 60000)); return m < 1 ? "just now" : m + " min ago"; };
 
   const key = new URLSearchParams(location.search).get("k") || "";
-  let sound = localStorage.getItem("rt-wsound") !== "off", seen = null;
+  let sound = localStorage.getItem("rt-wsound") !== "off";
+  let omap = new Map(), since = 0, lastFull = 0, busy = false, pending = 0, gen = 0, inited = false, lastSig = null, ctx = null;
 
   $("#take").href = "index.html?waiter=" + encodeURIComponent(key);   // opens the normal ordering app in waiter mode
-  const paint = () => { $("#sound").textContent = sound ? "🔔 Sound on" : "🔕 Sound off"; };
+
+  /* ---------- sound ---------- */
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const hint = () => $("#snd-hint").classList.toggle("hidden", !sound || !!(ctx && ctx.state === "running"));
+  function unlock() { try { ctx = ctx || new AC(); if (ctx.state !== "running") ctx.resume().then(hint).catch(() => {}); hint(); } catch (_) {} }
+  ["pointerdown", "touchstart", "keydown"].forEach((ev) => addEventListener(ev, unlock, { passive: true }));
+  const paint = () => { $("#sound").textContent = sound ? "🔔 Sound on" : "🔕 Sound off"; hint(); };
   $("#sound").onclick = () => { sound = !sound; localStorage.setItem("rt-wsound", sound ? "on" : "off"); paint(); beep(); };
   paint();
-
   function beep() {
     if (!sound) return;
     try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      [880, 1175, 880].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + i * 0.2; o.frequency.value = f; o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.start(t); o.stop(t + 0.19); });
+      ctx = ctx || new AC(); if (ctx.state === "suspended") ctx.resume();
+      [880, 1175, 880].forEach((f, i) => { const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + i * 0.2; o.frequency.value = f; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.start(t); o.stop(t + 0.19); });
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
     } catch (_) {}
   }
+  let tt; function toast(m) { const el = $("#toast"); $("#toast div").textContent = m; el.classList.remove("opacity-0", "translate-y-4"); clearTimeout(tt); tt = setTimeout(() => el.classList.add("opacity-0", "translate-y-4"), 4000); }
 
-  const NEXT = { received: ["preparing", "Start preparing"], preparing: ["ready", "Mark ready"], ready: ["served", "Mark served"] };
-  const BADGE = { received: "bg-red-50 text-red-600", preparing: "bg-amber-50 text-amber-700", ready: "bg-emerald-50 text-emerald-700" };
+  /* ---------- cards ---------- */
+  // The chef moves orders to Ready. The waiter's only action is "Mark served".
+  const BADGE = { received: "bg-red-50 text-red-600", preparing: "bg-amber-50 text-amber-700", ready: "bg-live-soft text-live" };
   const LABEL = { received: "New", preparing: "Preparing", ready: "Ready to serve" };
+  const WAIT = { received: "Sent to the kitchen", preparing: "The kitchen is preparing it" };
 
   function card(o, fresh) {
-    const nx = NEXT[o.status];
-    return `<article class="rounded-2xl bg-white p-4 shadow-card ${fresh ? "flash" : ""}">
+    const ready = o.status === "ready";
+    return `<article class="rounded-2xl bg-white p-4 shadow-card ${ready ? "ring-2 ring-live" : ""} ${fresh ? "flash" : ""}">
       <div class="flex items-start justify-between gap-2">
-        <div><p class="text-xl font-extrabold">Table ${esc(String(o.table).replace(/^T0*/, ""))}</p><p class="text-[11px] text-slate-500">Order #${esc(o.number)} · ${tm(o.createdAtMs)}${o.customerName ? " · " + esc(o.customerName) : ""}</p></div>
+        <div><p class="text-xl font-extrabold">Table ${tbl(o.table)}</p><p class="text-[11px] text-slate-500">Order #${esc(o.number)} · ${tm(o.createdAtMs)}${o.customerName ? " · " + esc(o.customerName) : ""}</p></div>
         <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${BADGE[o.status] || ""}">${LABEL[o.status] || esc(o.status)}</span>
       </div>
       <ul class="mt-3 divide-y divide-slate-100 text-[15px]">${(o.items || []).map((i) => `<li class="flex justify-between gap-3 py-2"><span class="font-semibold">${esc(i.name)}</span><span class="font-extrabold">× ${i.qty}</span></li>`).join("")}</ul>
       ${o.notes ? `<p class="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">📝 ${esc(o.notes)}</p>` : ""}
-      ${nx ? `<button data-st="${esc(o.id)}|${nx[0]}" class="mt-3 w-full rounded-xl bg-brand py-3.5 text-sm font-bold text-white hover:bg-brand-dark">${nx[1]}</button>` : ""}
+      ${ready
+        ? `<p class="mt-3 text-center text-xs font-bold text-live">Ready <span data-ago="${o.updatedAtMs}">${ago(o.updatedAtMs)}</span> — pick it up from the kitchen</p>
+           <button data-st="${esc(o.id)}|served" class="mt-2 w-full rounded-xl bg-live py-3.5 text-sm font-bold text-white hover:bg-green-700">Mark served</button>`
+        : `<p class="mt-3 text-center text-xs font-semibold text-slate-400">${WAIT[o.status] || ""}</p>`}
     </article>`;
   }
 
-  async function load(body = {}) {
+  function render(readyNow) {
+    const list = [...omap.values()].sort((a, b) => (b.status === "ready") - (a.status === "ready") || a.createdAtMs - b.createdAtMs);
+    const rc = list.filter((o) => o.status === "ready").length;
+    $("#count").textContent = list.length;
+    $("#ready-count").textContent = rc ? rc + " ready" : "";
+    const sig = list.map((o) => o.id + o.status + (o.updatedAtMs || 0)).join(",");
+    if (sig === lastSig && !(readyNow && readyNow.size)) return;   // nothing changed: leave the screen alone
+    lastSig = sig;
+    $("#orders").innerHTML = list.length ? list.map((o) => card(o, readyNow && readyNow.has(o.id))).join("")
+      : `<div class="rounded-2xl bg-white p-10 text-center shadow-card"><p class="text-4xl text-slate-300">🍽️</p><p class="mt-2 text-sm font-bold text-slate-500">No orders for you right now.</p></div>`;
+  }
+
+  /* ---------- talking to the server ---------- */
+  const show = (m) => { const e = $("#err"); e.textContent = m; e.classList.remove("hidden"); };
+  async function call(body = {}) {
     if (key.length < 10) { show("This link is not valid. Ask the owner for your waiter link."); return null; }
     try {
       const r = await fetch("/api/waiter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, ...body }) });
@@ -95,31 +126,49 @@
       return j;
     } catch (_) { show("No internet. Retrying…"); return null; }
   }
-  function show(m) { const e = $("#err"); e.textContent = m; e.classList.remove("hidden"); }
 
-  function render(j) {
+  function apply(j) {
+    const readyNow = new Set(), notes = [];
     $("#who").textContent = "Hi, " + j.waiter.name;
     if (j.waiter.tables.length) { $("#tables").textContent = "Your tables: " + j.waiter.tables.join(", "); $("#tables").classList.remove("hidden"); }
-    const ids = new Set(j.orders.map((o) => o.id));
-    const fresh = new Set(seen ? j.orders.filter((o) => !seen.has(o.id)).map((o) => o.id) : []);
-    if (fresh.size) beep();
-    seen = ids;
-    $("#count").textContent = j.orders.length;
-    $("#orders").innerHTML = j.orders.length ? j.orders.map((o) => card(o, fresh.has(o.id))).join("")
-      : `<div class="rounded-2xl bg-white p-10 text-center shadow-card"><p class="text-4xl text-slate-300">🍽️</p><p class="mt-2 text-sm font-bold text-slate-500">No orders for you right now.</p></div>`;
+    if (j.full) { const ids = new Set(j.orders.map((o) => o.id)); [...omap.keys()].forEach((id) => { if (!ids.has(id)) omap.delete(id); }); lastFull = Date.now(); }
+    j.orders.forEach((o) => {
+      const p = omap.get(o.id);
+      if (!o.open) { if (p && o.status === "cancelled") notes.push(`Order #${o.number} (Table ${String(o.table).replace(/^T0*/, "")}) was cancelled`); omap.delete(o.id); return; }
+      if (inited && o.status === "ready" && (!p || p.status !== "ready")) readyNow.add(o.id);
+      omap.set(o.id, o);
+    });
+    inited = true; since = j.asOf - 5000;   // small overlap so nothing is ever missed
+    render(readyNow);
+    if (readyNow.size) { beep(); const o = omap.get([...readyNow][0]); toast(readyNow.size > 1 ? `${readyNow.size} orders are ready!` : `Table ${String(o.table).replace(/^T0*/, "")} · Order #${o.number} is ready!`); }
+    else if (notes.length) { beep(); toast(notes[0]); }
   }
 
-  async function tick() { const j = await load(); if (j) render(j); }
+  /* First load (and a safety re-sync every minute) gets everything; in between only changes come back. */
+  async function tick(force) {
+    if (busy || pending) return;
+    busy = true; const g = gen;
+    const full = force === true || !since || Date.now() - lastFull > 60000;
+    const j = await call(full ? {} : { since });
+    busy = false;
+    if (j && g === gen) apply(j);
+  }
+
   $("#orders").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-st]"); if (!b) return;
-    b.disabled = true;
     const [id, status] = b.dataset.st.split("|");
-    const j = await load({ action: "status", id, status });
-    if (j) render(j); else b.disabled = false;
+    const o = omap.get(id); if (!o) return;
+    omap.delete(id); render();            // instantly off the list; the server confirms in the background
+    pending++; gen++;
+    const j = await call({ action: "status", id, status });
+    pending--;
+    if (j) apply(j); else { omap.set(id, o); render(); tick(true); }
   });
 
-  tick();
-  setInterval(() => { if (!document.hidden) tick(); }, 10000);
+  tick(true);
+  setInterval(() => { if (!document.hidden) tick(); }, 4000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+  setInterval(() => document.querySelectorAll("[data-ago]").forEach((el) => { el.textContent = ago(+el.dataset.ago); }), 20000);
 })();
 </script>
 </body>

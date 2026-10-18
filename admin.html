@@ -67,7 +67,7 @@
 
   <!-- ============ STATS ============ -->
   <section class="mt-5 grid gap-4 sm:grid-cols-3" aria-label="Today at a glance">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's sales</p><p id="st-sales" class="mt-1.5 text-3xl font-extrabold">₹0</p><p class="mt-1 text-[11px] text-slate-400">Updated every 15 seconds</p></div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Today's sales</p><p id="st-sales" class="mt-1.5 text-3xl font-extrabold">₹0</p><p class="mt-1 text-[11px] text-slate-400">Live · updates every few seconds</p></div>
     <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active orders <span class="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-400"></span></p><p id="st-active" class="mt-1.5 text-3xl font-extrabold text-brand">0</p><p class="mt-1 text-[11px] text-slate-400">New and being prepared</p></div>
     <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Items served today</p><p id="st-items" class="mt-1.5 text-3xl font-extrabold">0</p><p id="st-items-sub" class="mt-1 text-[11px] text-slate-400">Across 0 completed orders</p></div>
   </section>
@@ -126,7 +126,14 @@
   <!-- ============ WAITERS ============ -->
   <section id="tab-waiters" class="mt-4 hidden">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-      <h2 class="text-lg font-extrabold">Waiters</h2>
+      <h2 class="text-lg font-extrabold">Kitchen &amp; Waiters</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <p class="font-extrabold">👨‍🍳 Kitchen (Chef) link</p>
+        <p class="mt-0.5 text-xs text-slate-500">Open this link once on the kitchen phone or tablet. The chef taps <b>Start preparing</b> and <b>Mark ready</b>. The waiter then taps <b>Mark served</b>. You (owner) can only cancel.</p>
+        <p id="chef-link" class="mt-3 truncate rounded-lg bg-white px-3 py-2 text-[11px] text-slate-500">Loading…</p>
+        <div class="mt-3 flex flex-wrap gap-2"><button type="button" class="btn" id="chef-copy">Copy link</button><a class="btn" id="chef-open" target="_blank" rel="noopener" href="#">Open kitchen page</a><a class="btn" id="chef-wa" target="_blank" rel="noopener" href="#">WhatsApp link</a><button type="button" class="btn border-transparent text-red-600" id="chef-reset">Reset link</button></div>
+      </div>
+      <h3 class="mt-6 text-base font-extrabold">Waiters</h3>
       <p class="mt-1 text-sm text-slate-500">Add a waiter's mobile number. They get a private link that shows only their orders. Assign tables, or leave empty and orders are shared fairly.</p>
       <form id="w-form" class="mt-4 grid items-end gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[1fr_1fr_1.2fr_auto]">
         <input type="hidden" id="w-id" />
@@ -194,7 +201,8 @@
 
   let token = localStorage.getItem("rt-admin") || "";
   let sound = localStorage.getItem("rt-sound") !== "off";
-  let seen = null, menu = { categories: [], items: [] }, waiters = [], timer = null;
+  let seen = null, menu = { categories: [], items: [] }, waiters = [], timer = null, chef = null;
+  let omap = new Map(), since = 0, lastFull = 0, statDay = "", lastSig = null, busy = false;
 
   /* ---------- helpers ---------- */
   let tt; function toast(m) { const el = $("#toast"); $("div", el).textContent = m; el.classList.remove("opacity-0", "translate-y-4"); clearTimeout(tt); tt = setTimeout(() => el.classList.add("opacity-0", "translate-y-4"), 2600); }
@@ -224,7 +232,7 @@
       token = r.token; localStorage.setItem("rt-admin", token); $("#pw").value = ""; start();
     } catch (x) { err.textContent = x.message; err.classList.remove("hidden"); }
   });
-  function logout() { token = ""; localStorage.removeItem("rt-admin"); clearInterval(timer); seen = null; $("#shell").classList.add("hidden"); $("#login").classList.remove("hidden"); }
+  function logout() { token = ""; localStorage.removeItem("rt-admin"); clearInterval(timer); seen = null; omap = new Map(); since = 0; lastSig = null; $("#shell").classList.add("hidden"); $("#login").classList.remove("hidden"); }
   $("#logout").onclick = logout;
   $("#sound").onclick = () => { sound = !sound; localStorage.setItem("rt-sound", sound ? "on" : "off"); paintSound(); beep(); };
 
@@ -237,12 +245,12 @@
   $$(".tab").forEach((b) => b.addEventListener("click", () => tab(b.dataset.tab)));
 
   /* ---------- orders ---------- */
-  const NEXT = { received: ["preparing", "Start preparing"], preparing: ["ready", "Mark ready"], ready: ["served", "Mark served"] };
+  // Owner can only cancel. The chef starts/readies orders and the waiter serves them.
+  const ACTIVE = { received: 1, preparing: 1, ready: 1 };
   const BADGE = { received: "bg-red-50 text-red-600", preparing: "bg-amber-50 text-amber-700", ready: "bg-emerald-50 text-emerald-700", served: "bg-slate-100 text-slate-600", cancelled: "bg-slate-100 text-slate-500" };
   const LABEL = { received: "New", preparing: "Preparing", ready: "Ready", served: "Served", cancelled: "Cancelled" };
 
   function orderCard(o, fresh) {
-    const nx = NEXT[o.status];
     const lines = (o.items || []).map((i) => `<li class="flex justify-between gap-2"><span>${esc(i.name)} <span class="text-slate-400">× ${i.qty}</span></span><span class="font-semibold">${money(i.price * i.qty)}</span></li>`).join("");
     return `<article class="rounded-2xl border border-slate-200 p-4 ${fresh ? "flash" : ""}">
       <div class="flex items-start justify-between gap-2">
@@ -255,34 +263,51 @@
       ${o.customer && (o.customer.name || o.customer.phone) ? `<p class="mt-2 text-[11px] text-slate-500">${esc(o.customer.name)} ${esc(o.customer.phone)}</p>` : ""}
       <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
         <span class="text-sm font-extrabold">${money(o.total)} <span class="text-[10px] font-semibold text-slate-400">incl. tax · pay at counter</span></span>
-        ${nx ? `<div class="flex gap-2"><button data-st="${esc(o.id)}|cancelled" class="btn text-red-600">Cancel</button><button data-st="${esc(o.id)}|${nx[0]}" class="btn btn-red">${nx[1]}</button></div>` : ""}
+        ${ACTIVE[o.status] ? `<button data-st="${esc(o.id)}|cancelled" class="btn text-red-600">Cancel order</button>` : ""}
       </div></article>`;
   }
 
-  async function refresh() {
-    try {
-      const { orders, stats } = await call("dashboard");
-      const ids = new Set(orders.map((o) => o.id));
-      const fresh = new Set(seen ? orders.filter((o) => !seen.has(o.id)).map((o) => o.id) : []);
-      if (fresh.size) { beep(); toast(`${fresh.size} new order${fresh.size > 1 ? "s" : ""}!`); }
-      seen = ids;
-      $("#st-sales").textContent = money(stats.sales);
-      $("#st-active").textContent = orders.length;
-      $("#st-items").textContent = stats.itemsServed;
-      $("#st-items-sub").textContent = `Across ${stats.servedOrders} completed order${stats.servedOrders === 1 ? "" : "s"}`;
-      $("#orders").innerHTML = orders.length
-        ? orders.map((o) => orderCard(o, fresh.has(o.id))).join("")
-        : `<div class="col-span-full grid place-items-center py-16 text-center"><p class="text-4xl text-slate-300">🖥️</p><p class="mt-2 text-sm font-bold text-slate-500">No new orders right now.</p></div>`;
-    } catch (_) {}
+  function paintStats(s) {
+    $("#st-sales").textContent = money(s.sales);
+    $("#st-items").textContent = s.itemsServed;
+    $("#st-items-sub").textContent = `Across ${s.servedOrders} completed order${s.servedOrders === 1 ? "" : "s"}`;
   }
-  $("#refresh").onclick = refresh;
+  /* Draw the order cards from the local list. Skips the redraw when nothing changed. */
+  function render() {
+    const orders = [...omap.values()].sort((a, b) => a.createdAtMs - b.createdAtMs);
+    const fresh = new Set(seen ? orders.filter((o) => !seen.has(o.id)).map((o) => o.id) : []);
+    if (fresh.size) { beep(); toast(`${fresh.size} new order${fresh.size > 1 ? "s" : ""}!`); }
+    seen = new Set(orders.map((o) => o.id));
+    $("#st-active").textContent = orders.length;
+    const sig = orders.map((o) => o.id + o.status + (o.updatedAtMs || 0)).join(",");
+    if (sig === lastSig && !fresh.size) return;
+    lastSig = sig;
+    $("#orders").innerHTML = orders.length
+      ? orders.map((o) => orderCard(o, fresh.has(o.id))).join("")
+      : `<div class="col-span-full grid place-items-center py-16 text-center"><p class="text-4xl text-slate-300">🖥️</p><p class="mt-2 text-sm font-bold text-slate-500">No new orders right now.</p></div>`;
+  }
+  /* First load (and a safety re-sync every minute) gets everything; in between only changes come back. */
+  async function refresh(force) {
+    if (busy) return; busy = true;
+    try {
+      const full = force === true || !since || Date.now() - lastFull > 60000;
+      const r = await call("dashboard", full ? {} : { since, day: statDay });
+      if (r.full) { omap = new Map(r.orders.map((o) => [o.id, o])); lastFull = Date.now(); }
+      else r.changed.forEach((o) => (o.open ? omap.set(o.id, o) : omap.delete(o.id)));
+      since = r.asOf - 5000; statDay = r.day;   // small overlap so nothing is ever missed
+      if (r.stats) paintStats(r.stats);
+      render();
+    } catch (_) {} finally { busy = false; }
+  }
+  $("#refresh").onclick = () => refresh(true);
   $("#orders").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-st]"); if (!b) return;
-    const [id, status] = b.dataset.st.split("|");
-    if (status === "cancelled" && !confirm("Cancel this order?")) return;
-    b.disabled = true;
-    try { await run(call("status", { id, status })); } catch (_) {}
-    refresh();
+    const [id] = b.dataset.st.split("|");
+    if (!confirm("Cancel this order? The kitchen and waiter will stop seeing it.")) return;
+    const card = b.closest("article"); b.disabled = true; if (card) card.style.opacity = ".5";
+    try { await run(call("status", { id, status: "cancelled" })); omap.delete(id); render(); }
+    catch (_) { b.disabled = false; if (card) card.style.opacity = ""; }
+    refresh(true);
   });
   $("#load-history").onclick = async () => {
     try {
@@ -403,6 +428,23 @@
     try { setW(await run(call("waiter_save", { id, name: w.name, phone: w.phone, tables: (w.tables || []).join(","), active: e.target.checked }))); } catch (_) { e.target.checked = !e.target.checked; }
   });
 
+  /* ---------- kitchen (chef) link ---------- */
+  const cLink = () => (chef ? `${location.origin}/kitchen.html?k=${chef.key}` : "");
+  function paintChef() {
+    $("#chef-link").textContent = cLink() || "Loading…";
+    $("#chef-open").href = cLink() || "#";
+    $("#chef-wa").href = "https://wa.me/?text=" + encodeURIComponent("Royal Treat kitchen link: " + cLink());
+  }
+  const setChef = (r) => { chef = r.chef; paintChef(); };
+  $("#chef-copy").onclick = async () => {
+    if (!chef) return;
+    try { await navigator.clipboard.writeText(cLink()); toast("Kitchen link copied"); } catch (_) { prompt("Copy this link", cLink()); }
+  };
+  $("#chef-reset").onclick = async () => {
+    if (!confirm("Create a new kitchen link? The old link will stop working, so open the new one on the kitchen device.")) return;
+    try { setChef(await run(call("chef_reset"))); toast("New kitchen link created"); } catch (_) {}
+  };
+
   /* ---------- settings ---------- */
   function paintSettings(s) { $("#s-open").checked = !!s.isOpen; $("#s-gst").value = s.gstPercent; $("#s-svc").value = s.servicePercent; $("#s-tables").value = s.tableCount; $("#s-incl").checked = !!s.pricesIncludeTax; }
   $("#s-form").addEventListener("submit", async (e) => {
@@ -417,9 +459,16 @@
     let saved = "orders"; try { saved = sessionStorage.getItem("rt-tab") || "orders"; } catch (_) {}
     tab(saved);
     clearInterval(timer);
-    await refresh();
-    timer = setInterval(() => { if (!document.hidden) refresh(); }, 15000);
-    try { setMenu(await call("menu_get")); setW(await call("waiters_list")); paintSettings((await call("settings_get")).settings); } catch (_) {}
+    timer = setInterval(() => { if (!document.hidden) refresh(); }, 5000);
+    // Everything loads at the same time instead of one after another.
+    const safe = (p, f) => p.then(f).catch(() => {});
+    await Promise.all([
+      refresh(true),
+      safe(call("menu_get"), setMenu),
+      safe(call("waiters_list"), setW),
+      safe(call("settings_get"), (r) => paintSettings(r.settings)),
+      safe(call("chef_get"), setChef),
+    ]);
   }
   setInterval(() => { $("#clock").textContent = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); }, 1000);
   if (token) start();

@@ -5,6 +5,7 @@ const { db, sign, verify, send, fail, getSettings, getMenu, istDay, applyStatus,
 
 const MENU = db.doc("meta/menu");
 const SET = db.doc("meta/settings");
+const CHEF = db.doc("meta/chef");
 const sha = (s) => crypto.createHash("sha256").update(String(s)).digest();
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "cat-" + Date.now();
 const nextId = (m) => Math.max(0, ...m.items.map((i) => Number(i.id) || 0)) + 1;
@@ -54,21 +55,42 @@ const normTables = (v) =>
 
 const ACTIONS = {
   /* ---------- orders ---------- */
-  async dashboard() {
-    const [o, st] = await Promise.all([
-      db.collection("orders").where("open", "==", true).get(),
-      db.doc(`stats/${istDay()}`).get(),
-    ]);
-    const orders = o.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => a.createdAtMs - b.createdAtMs);
-    return { orders, stats: { sales: 0, orders: 0, itemsServed: 0, servedOrders: 0, ...(st.data() || {}) } };
+  /* First call (no `since`): every open order + today's stats.
+     After that: only orders that changed since the last check, so each refresh is tiny and fast. */
+  async dashboard(b) {
+    const asOf = Date.now(), today = istDay(), since = Number(b.since) || 0;
+    const pack = (docs) => docs.map((d) => ({ id: d.id, ...d.data() }));
+    const stats = async () => ({ sales: 0, orders: 0, itemsServed: 0, servedOrders: 0, ...((await db.doc(`stats/${today}`).get()).data() || {}) });
+    if (!since) {
+      const [o, st] = await Promise.all([db.collection("orders").where("open", "==", true).get(), stats()]);
+      return { full: true, orders: pack(o.docs), stats: st, asOf, day: today };
+    }
+    const o = await db.collection("orders").where("updatedAtMs", ">", since).get();
+    const out = { full: false, changed: pack(o.docs), asOf, day: today };
+    if (o.size || b.day !== today) out.stats = await stats();
+    return out;
   },
   async history() {
     const o = await db.collection("orders").where("day", "==", istDay()).where("open", "==", false).get();
     return { orders: o.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => b.createdAtMs - a.createdAtMs).slice(0, 100) };
   },
+  /* The owner can only cancel. The chef prepares, the waiter serves. */
   async status(b) {
-    await applyStatus(b.id, String(b.status));
+    if (String(b.status) !== "cancelled") throw httpErr(403, "The owner can only cancel orders. The kitchen and waiters move orders forward.");
+    await applyStatus(b.id, "cancelled", { role: "owner" });
     return { ok: true };
+  },
+
+  /* ---------- kitchen (chef) link ---------- */
+  async chef_get() {
+    const s = await CHEF.get();
+    if (s.exists && s.data().key) return { chef: s.data() };
+    return ACTIONS.chef_reset();
+  },
+  async chef_reset() {
+    const chef = { key: crypto.randomBytes(12).toString("hex"), createdAtMs: Date.now() };
+    await CHEF.set(chef);
+    return { chef };
   },
 
   /* ---------- menu ---------- */

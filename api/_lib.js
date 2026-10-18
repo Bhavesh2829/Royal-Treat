@@ -87,20 +87,26 @@ function fail(res, e) {
   send(res, e.status || 500, { message: e.status ? e.message : "Server error" });
 }
 
-/* ---------- order status changes (shared by owner + waiter) ---------- */
-const NEXT = {
-  received: ["preparing", "cancelled"],
-  preparing: ["ready", "cancelled"],
-  ready: ["served", "cancelled"],
+/* ---------- order status changes: who may do what ----------
+   chef   : received -> preparing -> ready
+   waiter : ready -> served (their own orders)
+   owner  : cancel an active order
+   Enforced here on the server, so hiding buttons is never the only protection. */
+const FLOW = {
+  chef: { received: ["preparing"], preparing: ["ready"] },
+  waiter: { ready: ["served"] },
+  owner: { received: ["cancelled"], preparing: ["cancelled"], ready: ["cancelled"] },
 };
-async function applyStatus(id, status, { waiterId = null, canCancel = true } = {}) {
+async function applyStatus(id, status, { role, allow = null } = {}) {
+  if (!Object.prototype.hasOwnProperty.call(FLOW, role)) throw httpErr(403, "Not allowed");
   const ref = db.collection("orders").doc(String(id));
   return db.runTransaction(async (t) => {
     const snap = await t.get(ref);
     if (!snap.exists) throw httpErr(404, "Order not found");
     const o = snap.data();
-    if (waiterId && o.waiterId !== waiterId) throw httpErr(403, "This is not your order");
-    if (!(NEXT[o.status] || []).includes(status) || (status === "cancelled" && !canCancel)) {
+    if (allow && !allow(o)) throw httpErr(403, "This is not your order");
+    if (o.status === status) return; // double tap: already done, nothing to change
+    if (!(FLOW[role][o.status] || []).includes(status)) {
       throw httpErr(400, "That status change is not allowed");
     }
     const statRef = db.doc(`stats/${o.day}`);
@@ -123,6 +129,22 @@ async function applyStatus(id, status, { waiterId = null, canCancel = true } = {
   });
 }
 
+/* ---------- tiny per-instance cache: screens poll every few seconds, this saves database reads ---------- */
+const _memo = new Map();
+async function memo(key, ttl, load) {
+  const hit = _memo.get(key), now = Date.now();
+  if (hit && hit.exp > now) return hit.val;
+  const val = await load();
+  if (val != null) { if (_memo.size > 200) _memo.clear(); _memo.set(key, { val, exp: now + ttl }); }
+  return val;
+}
+const activeWaiterIds = () => memo("active-waiters", 15000, async () => {
+  const s = await db.collection("waiters").where("active", "==", true).get();
+  return new Set(s.docs.map((d) => d.id));
+});
+const hash = (s) => crypto.createHash("sha256").update(String(s)).digest();
+const safeEq = (a, b) => crypto.timingSafeEqual(hash(a), hash(b));
+
 /* ---------- which waiter gets a new order ---------- */
 async function pickWaiter(table) {
   const snap = await db.collection("waiters").where("active", "==", true).get();
@@ -138,5 +160,5 @@ async function pickWaiter(table) {
 
 module.exports = {
   admin, db, istDay, DEFAULTS, httpErr, getSettings, getMenu, totals,
-  sign, verify, send, fail, applyStatus, pickWaiter,
+  sign, verify, send, fail, applyStatus, pickWaiter, memo, activeWaiterIds, safeEq,
 };

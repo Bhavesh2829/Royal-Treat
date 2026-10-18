@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#d92d20" />
+  <title>Kitchen · Royal Treat</title>
+  <link rel="icon" href="royal-treat-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: { sans: ["DM Sans", "ui-sans-serif", "system-ui", "sans-serif"] },
+      colors: { brand: { DEFAULT: "#d92d20", dark: "#b42318", soft: "#fef0ee" }, ink: "#101828", live: { DEFAULT: "#12a150", soft: "#e7f7ee" } },
+      boxShadow: { card: "0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06)" } } } };
+  </script>
+  <style>
+    body { background: #f6f8fb; }
+    button:focus-visible, a:focus-visible { outline: 3px solid rgba(217,45,32,.35); outline-offset: 2px; }
+    @keyframes flash { 0%,100% { box-shadow: 0 0 0 0 rgba(217,45,32,0); } 50% { box-shadow: 0 0 0 6px rgba(217,45,32,.4); } }
+    .flash { animation: flash 1s ease 3; }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+<div class="mx-auto min-h-[100dvh] max-w-4xl px-4 pb-16 pt-4">
+  <header class="rounded-2xl bg-white p-4 shadow-card">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex min-w-0 items-center gap-2.5">
+        <img src="royal-treat-logo.png" alt="" class="h-10 w-10 shrink-0 rounded-xl object-cover" />
+        <div class="min-w-0"><h1 class="truncate text-lg font-extrabold leading-tight">Royal Treat · Kitchen</h1><p class="flex items-center gap-1.5 truncate text-xs text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-live"></span>Live · orders appear here automatically</p></div>
+      </div>
+      <button id="sound" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">🔔 Sound on</button>
+    </div>
+    <div class="mt-3 grid grid-cols-2 gap-2">
+      <div class="rounded-xl bg-brand-soft py-2 text-center"><p id="c-new" class="text-2xl font-extrabold text-brand">0</p><p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">New</p></div>
+      <div class="rounded-xl bg-amber-50 py-2 text-center"><p id="c-prep" class="text-2xl font-extrabold text-amber-600">0</p><p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Preparing</p></div>
+    </div>
+    <p id="snd-hint" class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">🔔 Tap anywhere once to turn on sound alerts for new orders.</p>
+  </header>
+
+  <p id="err" class="mt-4 hidden rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert"></p>
+  <main id="board" class="mt-4 space-y-6" aria-live="polite"></main>
+  <p class="mt-8 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Powered by Webtizo</p>
+</div>
+
+<div id="toast" class="pointer-events-none fixed inset-x-0 bottom-6 z-[60] mx-auto flex max-w-sm translate-y-4 justify-center px-4 opacity-0 transition duration-300"><div class="rounded-full bg-ink px-5 py-3 text-center text-sm font-semibold text-white shadow-xl"></div></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const tm = (ms) => new Date(ms).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const tbl = (t) => String(t).replace(/^T0*/, "");
+  const mins = (ms) => Math.max(0, Math.floor((Date.now() - ms) / 60000));
+  const ageTxt = (m) => (m < 1 ? "just now" : m + " min");
+  const AGE_BASE = "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold ";
+  const ageCls = (m) => (m >= 15 ? "bg-red-50 text-red-600" : m >= 8 ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600");
+
+  const key = new URLSearchParams(location.search).get("k") || "";
+  let sound = localStorage.getItem("rt-ksound") !== "off";
+  let omap = new Map(), since = 0, lastFull = 0, busy = false, pending = 0, gen = 0, inited = false, lastSig = null, ctx = null;
+
+  /* ---------- sound ---------- */
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const hint = () => $("#snd-hint").classList.toggle("hidden", !sound || !!(ctx && ctx.state === "running"));
+  function unlock() { try { ctx = ctx || new AC(); if (ctx.state !== "running") ctx.resume().then(hint).catch(() => {}); hint(); } catch (_) {} }
+  ["pointerdown", "touchstart", "keydown"].forEach((ev) => addEventListener(ev, unlock, { passive: true }));
+  const paint = () => { $("#sound").textContent = sound ? "🔔 Sound on" : "🔕 Sound off"; hint(); };
+  $("#sound").onclick = () => { sound = !sound; localStorage.setItem("rt-ksound", sound ? "on" : "off"); paint(); beep(); };
+  paint();
+  function beep() {
+    if (!sound) return;
+    try {
+      ctx = ctx || new AC(); if (ctx.state === "suspended") ctx.resume();
+      [880, 1175, 880].forEach((f, i) => { const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + i * 0.2; o.frequency.value = f; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.start(t); o.stop(t + 0.19); });
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } catch (_) {}
+  }
+  let tt; function toast(m) { const el = $("#toast"); $("#toast div").textContent = m; el.classList.remove("opacity-0", "translate-y-4"); clearTimeout(tt); tt = setTimeout(() => el.classList.add("opacity-0", "translate-y-4"), 4500); }
+
+  /* ---------- cards ---------- */
+  // The chef's only actions: New -> Start preparing -> Mark ready. The waiter serves it after that.
+  function card(o, fresh) {
+    const isNew = o.status === "received", m = mins(o.createdAtMs);
+    return `<article class="rounded-2xl border-l-4 bg-white p-4 shadow-card ${isNew ? "border-brand" : "border-amber-400"} ${fresh ? "flash" : ""}">
+      <div class="flex items-start justify-between gap-2">
+        <div><p class="text-2xl font-extrabold leading-none">Table ${esc(tbl(o.table))}</p><p class="mt-1 text-[11px] text-slate-500">Order #${esc(o.number)} · ${tm(o.createdAtMs)}${o.waiterName ? " · " + esc(o.waiterName) : ""}</p></div>
+        <span data-age="${o.createdAtMs}" class="${AGE_BASE}${ageCls(m)}">${ageTxt(m)}</span>
+      </div>
+      <ul class="mt-3 divide-y divide-slate-100">${(o.items || []).map((i) => `<li class="flex items-baseline justify-between gap-3 py-2 text-[17px]"><span class="font-semibold">${esc(i.name)}</span><span class="rounded-lg bg-slate-100 px-2 py-0.5 font-extrabold">× ${i.qty}</span></li>`).join("")}</ul>
+      ${o.notes ? `<p class="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">📝 ${esc(o.notes)}</p>` : ""}
+      <button data-st="${esc(o.id)}|${isNew ? "preparing" : "ready"}" class="mt-3 w-full rounded-xl py-4 text-base font-bold text-white ${isNew ? "bg-brand hover:bg-brand-dark" : "bg-live hover:bg-green-700"}">${isNew ? "Start preparing" : "Mark ready"}</button>
+    </article>`;
+  }
+  const section = (title, tone, list, empty, fresh) => `<section>
+    <h2 class="mb-2 flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider ${tone}">${title}<span class="rounded-full bg-white px-2 py-0.5 text-xs text-ink shadow-card">${list.length}</span></h2>
+    ${list.length ? `<div class="grid gap-3 sm:grid-cols-2">${list.map((o) => card(o, fresh && fresh.has(o.id))).join("")}</div>` : `<p class="rounded-2xl bg-white/60 px-4 py-5 text-center text-sm font-semibold text-slate-400">${empty}</p>`}
+  </section>`;
+
+  function render(fresh) {
+    const all = [...omap.values()].sort((a, b) => a.createdAtMs - b.createdAtMs);   // oldest first
+    const nw = all.filter((o) => o.status === "received"), cook = all.filter((o) => o.status === "preparing"), done = all.filter((o) => o.status === "ready");
+    $("#c-new").textContent = nw.length; $("#c-prep").textContent = cook.length;
+    const sig = all.map((o) => o.id + o.status + (o.updatedAtMs || 0)).join(",");
+    if (sig === lastSig && !(fresh && fresh.size)) return;   // nothing changed: leave the screen alone
+    lastSig = sig;
+    $("#board").innerHTML = all.length
+      ? section("New orders", "text-brand", nw, "No new orders.", fresh) + section("Preparing", "text-amber-600", cook, "Nothing is being prepared.", fresh)
+        + (done.length ? `<section><h2 class="mb-2 text-sm font-extrabold uppercase tracking-wider text-live">Ready · waiting for the waiter</h2><div class="flex flex-wrap gap-2">${done.map((o) => `<span class="rounded-full bg-live-soft px-3 py-1.5 text-xs font-bold text-live">Table ${esc(tbl(o.table))} · #${esc(o.number)}${o.waiterName ? " · " + esc(o.waiterName) : ""}</span>`).join("")}</div></section>` : "")
+      : `<div class="rounded-2xl bg-white p-12 text-center shadow-card"><p class="text-5xl text-slate-300">👨‍🍳</p><p class="mt-3 text-base font-bold text-slate-500">No orders in the kitchen right now.</p><p class="mt-1 text-sm text-slate-400">New orders appear here the moment they are placed.</p></div>`;
+  }
+
+  /* ---------- talking to the server ---------- */
+  const show = (m) => { const e = $("#err"); e.textContent = m; e.classList.remove("hidden"); };
+  async function call(body = {}) {
+    if (key.length < 10) { show("This link is not valid. Ask the owner for the kitchen link."); return null; }
+    try {
+      const r = await fetch("/api/chef", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, ...body }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { show(j.message || "Could not load orders"); return null; }
+      $("#err").classList.add("hidden");
+      return j;
+    } catch (_) { show("No internet. Retrying…"); return null; }
+  }
+
+  function apply(j) {
+    const fresh = new Set(), cancelled = [];
+    if (j.full) { const ids = new Set(j.orders.map((o) => o.id)); [...omap.keys()].forEach((id) => { if (!ids.has(id)) omap.delete(id); }); lastFull = Date.now(); }
+    j.orders.forEach((o) => {
+      const p = omap.get(o.id);
+      if (!o.open) { if (p && o.status === "cancelled") cancelled.push(o); omap.delete(o.id); return; }
+      if (inited && !p && o.status === "received") fresh.add(o.id);
+      omap.set(o.id, o);
+    });
+    inited = true; since = j.asOf - 5000;   // small overlap so nothing is ever missed
+    render(fresh);
+    if (fresh.size) { beep(); toast(fresh.size > 1 ? `${fresh.size} new orders!` : `New order · Table ${tbl(omap.get([...fresh][0]).table)}`); }
+    else if (cancelled.length) { beep(); toast(`Cancelled: Table ${tbl(cancelled[0].table)} · Order #${cancelled[0].number}. Stop preparing it.`); }
+  }
+
+  /* First load (and a safety re-sync every minute) gets everything; in between only changes come back. */
+  async function tick(force) {
+    if (busy || pending) return;
+    busy = true; const g = gen;
+    const full = force === true || !since || Date.now() - lastFull > 60000;
+    const j = await call(full ? {} : { since });
+    busy = false;
+    if (j && g === gen) apply(j);
+  }
+
+  $("#board").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-st]"); if (!b) return;
+    const [id, status] = b.dataset.st.split("|");
+    const o = omap.get(id); if (!o) return;
+    const prev = o.status;
+    o.status = status; o.updatedAtMs = Date.now(); render();   // instant; the server confirms in the background
+    pending++; gen++;
+    const j = await call({ action: "status", id, status });
+    pending--;
+    if (j) apply(j); else { o.status = prev; render(); tick(true); }
+  });
+
+  tick(true);
+  setInterval(() => { if (!document.hidden) tick(); }, 3000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+  setInterval(() => document.querySelectorAll("[data-age]").forEach((el) => { const m = mins(+el.dataset.age); el.textContent = ageTxt(m); el.className = AGE_BASE + ageCls(m); }), 20000);
+})();
+</script>
+</body>
+</html>
