@@ -92,10 +92,19 @@
     <!-- ================= VIEW 1 : TABLE SELECTION ================= -->
     <section id="view-tables" class="px-4 pb-10 pt-5 sm:px-5" aria-labelledby="brand-name">
       <div class="hero-bg fade-up relative overflow-hidden rounded-[28px] border border-red-100/70 p-6 shadow-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex min-w-0 items-center gap-2.5">
-            <img id="brand-logo" src="royal-treat-logo.png" alt="" width="40" height="40" class="h-10 w-10 shrink-0 rounded-xl object-cover" />
-            <h1 id="brand-name" class="truncate text-[22px] font-extrabold uppercase tracking-tight">Royal Treat</h1>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex min-w-0 items-center">
+            <img
+              id="brand-logo"
+              src="royal-treat-logo.png"
+              alt="Royal Treat"
+              height="56"
+              decoding="async"
+              fetchpriority="high"
+              class="h-12 w-auto max-w-[180px] shrink-0 select-none object-contain object-left drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)] sm:h-14"
+              draggable="false"
+            />
+            <h1 id="brand-name" class="sr-only">Royal Treat</h1>
           </div>
           <span id="live-pill" class="inline-flex shrink-0 items-center gap-2 rounded-full border border-live/20 bg-live-soft px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-live">
             <span class="live-dot h-2 w-2 rounded-full bg-live"></span><span class="live-text">Menu is live</span>

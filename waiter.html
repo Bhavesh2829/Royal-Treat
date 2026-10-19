@@ -26,11 +26,22 @@
 <div class="mx-auto min-h-[100dvh] max-w-xl px-4 pb-16 pt-4">
   <header class="rounded-2xl bg-white p-4 shadow-card">
     <div class="flex items-center justify-between gap-3">
-      <div class="flex min-w-0 items-center gap-2.5">
-        <img src="royal-treat-logo.png" alt="" class="h-10 w-10 shrink-0 rounded-xl object-cover" />
-        <div class="min-w-0"><h1 class="truncate text-lg font-extrabold leading-tight">Royal Treat</h1><p id="who" class="truncate text-xs text-slate-500">Waiter</p></div>
+      <div class="flex min-w-0 items-center gap-3">
+        <img
+          src="royal-treat-logo.png"
+          alt="Royal Treat"
+          height="44"
+          decoding="async"
+          draggable="false"
+          class="h-11 w-auto max-w-[110px] shrink-0 select-none object-contain object-left drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+        />
+        <span class="h-9 w-px shrink-0 bg-slate-200" aria-hidden="true"></span>
+        <div class="min-w-0">
+          <h1 class="sr-only">Royal Treat</h1>
+          <p id="who" class="truncate text-lg font-extrabold leading-tight">Waiter</p>
+        </div>
       </div>
-      <button id="sound" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">🔔 Sound on</button>
+      <button id="sound" class="shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">🔔 Sound on</button>
     </div>
     <div class="mt-3 grid grid-cols-2 gap-2">
       <a id="take" href="index.html" class="grid place-items-center rounded-xl bg-brand py-3 text-center text-sm font-bold text-white hover:bg-brand-dark">+ Take an order</a>

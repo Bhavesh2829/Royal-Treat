@@ -26,11 +26,22 @@
 <div class="mx-auto min-h-[100dvh] max-w-4xl px-4 pb-16 pt-4">
   <header class="rounded-2xl bg-white p-4 shadow-card">
     <div class="flex items-center justify-between gap-3">
-      <div class="flex min-w-0 items-center gap-2.5">
-        <img src="royal-treat-logo.png" alt="" class="h-10 w-10 shrink-0 rounded-xl object-cover" />
-        <div class="min-w-0"><h1 class="truncate text-lg font-extrabold leading-tight">Royal Treat · Kitchen</h1><p class="flex items-center gap-1.5 truncate text-xs text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-live"></span>Live · orders appear here automatically</p></div>
+      <div class="flex min-w-0 items-center gap-3">
+        <img
+          src="royal-treat-logo.png"
+          alt="Royal Treat"
+          height="44"
+          decoding="async"
+          draggable="false"
+          class="h-11 w-auto max-w-[110px] shrink-0 select-none object-contain object-left drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+        />
+        <span class="h-9 w-px shrink-0 bg-slate-200" aria-hidden="true"></span>
+        <div class="min-w-0">
+          <h1 class="truncate text-lg font-extrabold leading-tight"><span class="sr-only">Royal Treat · </span>Kitchen</h1>
+          <p class="flex items-center gap-1.5 truncate text-xs text-slate-500"><span class="h-1.5 w-1.5 shrink-0 rounded-full bg-live"></span>Live · orders appear here automatically</p>
+        </div>
       </div>
-      <button id="sound" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">🔔 Sound on</button>
+      <button id="sound" class="shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">🔔 Sound on</button>
     </div>
     <div class="mt-3 grid grid-cols-2 gap-2">
       <div class="rounded-xl bg-brand-soft py-2 text-center"><p id="c-new" class="text-2xl font-extrabold text-brand">0</p><p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">New</p></div>
