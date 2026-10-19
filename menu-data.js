@@ -22,26 +22,30 @@
   const photo = (id, width = 800) =>
     `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`;
 
+  // Category circles: square-cropped PNG, 400px is plenty for a small circle.
+  const categoryPhoto = (id) =>
+    `https://images.unsplash.com/${id}?fm=png&fit=crop&w=400&h=400&q=80`;
+
   const FISH_STYLES = "Choose your style: Rawa Fry, Recheado Masala, Batter-fried or Butter Garlic. Mention it in order notes.";
 
   const menu = {
     /* ------------------------------------------------------------------ */
 categories: [
-  { id: "soups",            name: "Soup",             emoji: "🍲", image: photo("photo-1547592166-23ac45744acd") },
-  { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: photo("photo-1601050690597-df0568f70950") }, // samosas
-  { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: photo("photo-1604908176997-125f25cc6f3d") },
-  { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: photo("photo-1585937421612-70a008356fbe") }, // curry in steel bowl
-  { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: photo("photo-1555939594-58d7cb561ad1") }, // grilled meat
-  { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: photo("photo-1772730064951-89b427965dbc") }, // chicken tikka masala
-  { id: "thali",            name: "Thali",            emoji: "🍽️", image: photo("photo-1625398407796-82650a8c135f") }, // thali on banana leaf
-  { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: photo("photo-1786227905994-235e1799292e") }, // Kerala fried fish meal
-  { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: photo("photo-1603133872878-684f208fb84b") },
-  { id: "noodles",          name: "Noodles",          emoji: "🍜", image: photo("photo-1569718212165-3a8278d5f624") },
-  { id: "biryani",          name: "Biryani",          emoji: "🍲", image: photo("photo-1631515243349-e0cb75fb8d3a") }, // chicken biryani
-  { id: "pulao",            name: "Pulao",            emoji: "🍚", image: photo("photo-1767114915989-c6ab3c8fc42e") }, // rice bowls
-  { id: "bread",            name: "Breads",           emoji: "🫓", image: photo("photo-1600935926387-12d9b03066f0") }, // roti / naan
-  { id: "beverages",        name: "Beverages",        emoji: "🥤", image: photo("photo-1621330716555-5cad596c4562") }, // iced lemon drink
-  { id: "dessert",          name: "Dessert",          emoji: "🍮", image: photo("photo-1488477181946-6428a0291777") },
+  { id: "soups",            name: "Soup",             emoji: "🍲", image: categoryPhoto("photo-1547592166-23ac45744acd") },
+  { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: categoryPhoto("photo-1601050690597-df0568f70950") }, // samosas
+  { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: categoryPhoto("photo-1604908176997-125f25cc6f3d") },
+  { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: categoryPhoto("photo-1585937421612-70a008356fbe") }, // curry in steel bowl
+  { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: categoryPhoto("photo-1555939594-58d7cb561ad1") }, // grilled meat
+  { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: categoryPhoto("photo-1772730064951-89b427965dbc") }, // chicken tikka masala
+  { id: "thali",            name: "Thali",            emoji: "🍽️", image: categoryPhoto("photo-1625398407796-82650a8c135f") }, // thali on banana leaf
+  { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: categoryPhoto("photo-1786227905994-235e1799292e") }, // Kerala fried fish meal
+  { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: categoryPhoto("photo-1603133872878-684f208fb84b") },
+  { id: "noodles",          name: "Noodles",          emoji: "🍜", image: categoryPhoto("photo-1569718212165-3a8278d5f624") },
+  { id: "biryani",          name: "Biryani",          emoji: "🍲", image: categoryPhoto("photo-1631515243349-e0cb75fb8d3a") }, // chicken biryani
+  { id: "pulao",            name: "Pulao",            emoji: "🍚", image: categoryPhoto("photo-1767114915989-c6ab3c8fc42e") }, // rice bowls
+  { id: "bread",            name: "Breads",           emoji: "🫓", image: categoryPhoto("photo-1600935926387-12d9b03066f0") }, // roti / naan
+  { id: "beverages",        name: "Beverages",        emoji: "🥤", image: categoryPhoto("photo-1621330716555-5cad596c4562") }, // iced lemon drink
+  { id: "dessert",          name: "Dessert",          emoji: "🍮", image: categoryPhoto("photo-1488477181946-6428a0291777") },
 ],
     /* ------------------------------------------------------------------ */
     items: [
@@ -108,7 +112,7 @@ categories: [
       { id: 48, category: "thali", name: "Veg Thali",          price: 160, veg: true,  image: photo("photo-1626776876729-bab4369a5a5a", 600) },
       { id: 49, category: "thali", name: "Standard Fish Thali", price: 170, veg: false, image: photo("photo-1546833999-b9f581a1996d", 600) },
       { id: 50, category: "thali", name: "Kingfish Thali",     price: null, priceLabel: APS, veg: false, image: photo("photo-1621334997871-3315750ee33a", 600) },
-      { id: 51, category: "thali", name: "Chonak Thali",       price: null, priceLabel: APS, veg: false, image: photo("photo-1599487488170-d11ec9c172f0", 600) },
+      { id: 51, category: "thali", name: "Chonak Thali",       price: null, priceLabel: APS, veg: false, image: photo("photo-1786227905994-235e1799292e", 600) },
       { id: 52, category: "thali", name: "Prawns Thali",       price: null, priceLabel: APS, veg: false, image: photo("photo-1565557623262-b51c2513a641", 600) },
 
       // ---- Fish Fry (all priced on request) -----------------------------
