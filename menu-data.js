@@ -34,7 +34,7 @@
   // Bump this whenever you edit the file. It forces browsers to re-download
   // the photos and is printed in the console so you can confirm which version
   // of this file is actually running.
-  const MENU_VERSION = "2026-10-20.2";
+  const MENU_VERSION = "2026-10-20.3";
 
   const CATEGORY_IMG_SIZE = 400; // shown as small circles, so no need for more
   const ITEM_IMG_SIZE = 600;
@@ -65,16 +65,16 @@
       { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: categoryImage("veg-starters", "photo-1567188040759-fb8a883dc6d8") },
       { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: categoryImage("chicken-starters", "photo-1610057099443-fde8c4d50f91") },
       { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: categoryImage("veg-mains", "photo-1631452180519-c014fe946bc7") },
-      { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: categoryImage("tandoori", "photo-1599487488170-d11ec9c172f0") },
-      { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: categoryImage("chicken-mains", "photo-1603894584373-5ac82b2ae398") },
-      { id: "thali",            name: "Thali",            emoji: "🍽️", image: categoryImage("thali", "photo-1546833999-b9f581a1996d") },
-      { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: categoryImage("fish-fry", "photo-1519708227418-c8fd9a32b7a2") },
+      { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: categoryImage("tandoori", "photo-1555939594-58d7cb561ad1") },
+      { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: categoryImage("chicken-mains", "photo-1772730064951-89b427965dbc") },
+      { id: "thali",            name: "Thali",            emoji: "🍽️", image: categoryImage("thali", "photo-1625398407796-82650a8c135f") },
+      { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: categoryImage("fish-fry", "photo-1786227905994-235e1799292e") },
       { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: categoryImage("chinese-rice", "photo-1603133872878-684f208fb84b") },
       { id: "noodles",          name: "Noodles",          emoji: "🍜", image: categoryImage("noodles", "photo-1569718212165-3a8278d5f624") },
-      { id: "biryani",          name: "Biryani",          emoji: "🍲", image: categoryImage("biryani", "photo-1589302168068-964664d93dc0") },
-      { id: "pulao",            name: "Pulao",            emoji: "🍚", image: categoryImage("pulao", "photo-1596560548464-f010549b84d7") },
-      { id: "bread",            name: "Breads",           emoji: "🫓", image: categoryImage("bread", "photo-1626074353765-517a681e40be") },
-      { id: "beverages",        name: "Beverages",        emoji: "🥤", image: categoryImage("beverages", "photo-1544145945-f90425340c7e") },
+      { id: "biryani",          name: "Biryani",          emoji: "🍲", image: categoryImage("biryani", "photo-1631515243349-e0cb75fb8d3a") },
+      { id: "pulao",            name: "Pulao",            emoji: "🍚", image: categoryImage("pulao", "photo-1767114915989-c6ab3c8fc42e") },
+      { id: "bread",            name: "Breads",           emoji: "🫓", image: categoryImage("bread", "photo-1600935926387-12d9b03066f0") },
+      { id: "beverages",        name: "Beverages",        emoji: "🥤", image: categoryImage("beverages", "photo-1621330716555-5cad596c4562") },
       { id: "dessert",          name: "Dessert",          emoji: "🍮", image: categoryImage("dessert", "photo-1666190092159-3171cf0fbb12") },
     ],
 
@@ -143,7 +143,7 @@
       { id: 48, category: "thali", name: "Veg Thali",           price: 160, veg: true,  image: itemPhoto("photo-1626776876729-bab4369a5a5a") },
       { id: 49, category: "thali", name: "Standard Fish Thali", price: 170, veg: false, image: itemPhoto("photo-1546833999-b9f581a1996d") },
       { id: 50, category: "thali", name: "Kingfish Thali",      price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1621334997871-3315750ee33a") },
-      { id: 51, category: "thali", name: "Chonak Thali",        price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1599487488170-d11ec9c172f0") },
+      { id: 51, category: "thali", name: "Chonak Thali",        price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1786227905994-235e1799292e") },
       { id: 52, category: "thali", name: "Prawns Thali",        price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1565557623262-b51c2513a641") },
 
       // ---- Fish Fry (all priced on request) -----------------------------
