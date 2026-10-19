@@ -1,47 +1,67 @@
 /* ==========================================================================
-   Royal Treat — demo menu
+   Royal Treat: demo menu
    Used only when APP_CONFIG.USE_MOCK = true. A real backend's GET /menu
-   returns this exact shape.
+   returns this exact shape: { categories: [...], items: [...] }
 
    HOW TO EDIT
-   • Add an item: copy any line, give it a NEW unique id, set category to a
-     category id from the list below.
-   • Hide an item temporarily: add  available: false
-   • "Price on request" dishes: price: null, priceLabel: APS
-     (shown on the menu, but not added to the cart)
-   • Photos: use your own files, e.g. image: "images/butter-chicken.jpg".
-     Stock photos below are placeholders and may not match the dish.
-   • Never reuse or renumber ids. Saved carts and past orders refer to them.
+   - Add an item: copy any line, give it a NEW unique id, and set category
+     to one of the category ids listed under `categories`.
+   - Hide an item temporarily: add  available: false
+   - "Price on request" dishes: price: null, priceLabel: APS
+     (shown on the menu, but not added to the cart).
+   - Photos: use your own files, e.g. image: "images/butter-chicken.jpg".
+     The stock photos below are placeholders and may not match the dish.
+   - Never reuse or renumber ids. Saved carts and past orders refer to them.
    ========================================================================== */
 (function () {
   "use strict";
 
+  /* ---- Settings -------------------------------------------------------- */
+
   const APS = "APS";
 
-  // Unsplash image builder: pass the photo id, get a sized, compressed URL.
-  const photo = (id, width = 800) =>
-    `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`;
+  // "auto" = smallest modern format the browser supports (fast, recommended).
+  // "png"  = lossless PNG (sharper edges, but noticeably heavier downloads).
+  // "jpg"  = classic JPEG.
+  const IMAGE_FORMAT = "auto";
 
-  const FISH_STYLES = "Choose your style: Rawa Fry, Recheado Masala, Batter-fried or Butter Garlic. Mention it in order notes.";
+  const CATEGORY_IMG_SIZE = 400; // shown as small circles, so no need for more
+  const ITEM_IMG_SIZE = 600;
+
+  /* ---- Helpers --------------------------------------------------------- */
+
+  // Unsplash image builder: pass the photo id, get a sized, compressed URL.
+  const photo = (id, width = 800) => {
+    const format = IMAGE_FORMAT === "auto" ? "auto=format" : `fm=${IMAGE_FORMAT}`;
+    return `https://images.unsplash.com/${id}?${format}&fit=crop&w=${width}&q=80`;
+  };
+
+  const categoryPhoto = (id) => photo(id, CATEGORY_IMG_SIZE);
+  const itemPhoto = (id) => photo(id, ITEM_IMG_SIZE);
+
+  const FISH_STYLES =
+    "Choose your style: Rawa Fry, Recheado Masala, Batter-fried or Butter Garlic. Mention it in order notes.";
+
+  /* ---- Menu data ------------------------------------------------------- */
 
   const menu = {
     /* ------------------------------------------------------------------ */
     categories: [
-      { id: "soups",            name: "Soup",             emoji: "🍲", image: photo("photo-1547592166-23ac45744acd") },
-      { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: photo("photo-1601050690597-df0568f70950") },
-      { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: photo("photo-1604908176997-125f25cc6f3d") },
-      { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: photo("photo-1631452180519-c014fe946bc7") },
-      { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: photo("photo-1599487488170-d11ec9c172f0") },
-      { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: photo("photo-1603894584373-5ac82b2ae398") },
-      { id: "thali",            name: "Thali",            emoji: "🍽️", image: photo("photo-1546833999-b9f581a1996d") },
-      { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: photo("photo-1519708227418-c8fd9a32b7a2") },
-      { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: photo("photo-1603133872878-684f208fb84b") },
-      { id: "noodles",          name: "Noodles",          emoji: "🍜", image: photo("photo-1569718212165-3a8278d5f624") },
-      { id: "biryani",          name: "Biryani",          emoji: "🍲", image: photo("photo-1563379091339-03246963d96c") },
-      { id: "pulao",            name: "Pulao",            emoji: "🍚", image: photo("photo-1512058564366-18510be2db19") },
-      { id: "bread",            name: "Breads",           emoji: "🫓", image: photo("photo-1601050690117-94f5f6fa8bd7") },
-      { id: "beverages",        name: "Beverages",        emoji: "🥤", image: photo("photo-1513558161293-7ffb6e9e7b5f") },
-      { id: "dessert",          name: "Dessert",          emoji: "🍮", image: photo("photo-1488477181946-6428a0291777") },
+      { id: "soups",            name: "Soup",             emoji: "🍲", image: categoryPhoto("photo-1547592166-23ac45744acd") },
+      { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: categoryPhoto("photo-1567188040759-fb8a883dc6d8") },
+      { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: categoryPhoto("photo-1610057099443-fde8c4d50f91") },
+      { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: categoryPhoto("photo-1631452180519-c014fe946bc7") },
+      { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: categoryPhoto("photo-1599487488170-d11ec9c172f0") },
+      { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: categoryPhoto("photo-1603894584373-5ac82b2ae398") },
+      { id: "thali",            name: "Thali",            emoji: "🍽️", image: categoryPhoto("photo-1546833999-b9f581a1996d") },
+      { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: categoryPhoto("photo-1519708227418-c8fd9a32b7a2") },
+      { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: categoryPhoto("photo-1603133872878-684f208fb84b") },
+      { id: "noodles",          name: "Noodles",          emoji: "🍜", image: categoryPhoto("photo-1569718212165-3a8278d5f624") },
+      { id: "biryani",          name: "Biryani",          emoji: "🍲", image: categoryPhoto("photo-1589302168068-964664d93dc0") },
+      { id: "pulao",            name: "Pulao",            emoji: "🍚", image: categoryPhoto("photo-1596560548464-f010549b84d7") },
+      { id: "bread",            name: "Breads",           emoji: "🫓", image: categoryPhoto("photo-1626074353765-517a681e40be") },
+      { id: "beverages",        name: "Beverages",        emoji: "🥤", image: categoryPhoto("photo-1544145945-f90425340c7e") },
+      { id: "dessert",          name: "Dessert",          emoji: "🍮", image: categoryPhoto("photo-1666190092159-3171cf0fbb12") },
     ],
 
     /* ------------------------------------------------------------------ */
@@ -55,14 +75,14 @@
       { id: 6,  category: "soups", name: "Cream Soup (Chicken)",       price: 180, veg: false },
 
       // ---- Veg Starters -------------------------------------------------
-      { id: 7,  category: "veg-starters", name: "French Fries",                price: 150, veg: true },
-      { id: 8,  category: "veg-starters", name: "Masala Papad",                price: 130, veg: true },
-      { id: 9,  category: "veg-starters", name: "Gobi Manchurian",             price: 190, veg: true },
-      { id: 10, category: "veg-starters", name: "Mushroom Chilli",             price: 220, veg: true },
-      { id: 11, category: "veg-starters", name: "Honey Chilli Potato",         price: 230, veg: true },
+      { id: 7,  category: "veg-starters", name: "French Fries",                 price: 150, veg: true },
+      { id: 8,  category: "veg-starters", name: "Masala Papad",                 price: 130, veg: true },
+      { id: 9,  category: "veg-starters", name: "Gobi Manchurian",              price: 190, veg: true },
+      { id: 10, category: "veg-starters", name: "Mushroom Chilli",              price: 220, veg: true },
+      { id: 11, category: "veg-starters", name: "Honey Chilli Potato",          price: 230, veg: true },
       { id: 12, category: "veg-starters", name: "Veg Tossed in Schezwan Sauce", price: 200, veg: true },
-      { id: 13, category: "veg-starters", name: "Paneer 65",                   price: 250, veg: true },
-      { id: 14, category: "veg-starters", name: "Paneer Tikka Kabab",          price: 260, veg: true },
+      { id: 13, category: "veg-starters", name: "Paneer 65",                    price: 250, veg: true },
+      { id: 14, category: "veg-starters", name: "Paneer Tikka Kabab",           price: 260, veg: true },
 
       // ---- Chicken Starters ---------------------------------------------
       { id: 15, category: "chicken-starters", name: "Chicken Dragon",             price: 260, veg: false },
@@ -91,7 +111,7 @@
       { id: 36, category: "veg-mains", name: "Paneer Chilli Fry",   price: 240, veg: true },
 
       // ---- Tandoori -----------------------------------------------------
-      { id: 37, category: "tandoori", name: "Chicken Tikka Kabab",    price: 280, veg: false },
+      { id: 37, category: "tandoori", name: "Chicken Tikka Kabab",     price: 280, veg: false },
       { id: 38, category: "tandoori", name: "Chicken Tandoori (Half)", price: 250, veg: false },
       { id: 39, category: "tandoori", name: "Chicken Tandoori (Full)", price: 480, veg: false },
 
@@ -106,11 +126,11 @@
       { id: 47, category: "chicken-mains", name: "Chicken Mughlai",      price: 280, veg: false },
 
       // ---- Thali --------------------------------------------------------
-      { id: 48, category: "thali", name: "Veg Thali",          price: 160, veg: true,  image: photo("photo-1626776876729-bab4369a5a5a", 600) },
-      { id: 49, category: "thali", name: "Standard Fish Thali", price: 170, veg: false, image: photo("photo-1546833999-b9f581a1996d", 600) },
-      { id: 50, category: "thali", name: "Kingfish Thali",     price: null, priceLabel: APS, veg: false, image: photo("photo-1621334997871-3315750ee33a", 600) },
-      { id: 51, category: "thali", name: "Chonak Thali",       price: null, priceLabel: APS, veg: false, image: photo("photo-1599487488170-d11ec9c172f0", 600) },
-      { id: 52, category: "thali", name: "Prawns Thali",       price: null, priceLabel: APS, veg: false, image: photo("photo-1565557623262-b51c2513a641", 600) },
+      { id: 48, category: "thali", name: "Veg Thali",           price: 160, veg: true,  image: itemPhoto("photo-1626776876729-bab4369a5a5a") },
+      { id: 49, category: "thali", name: "Standard Fish Thali", price: 170, veg: false, image: itemPhoto("photo-1546833999-b9f581a1996d") },
+      { id: 50, category: "thali", name: "Kingfish Thali",      price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1621334997871-3315750ee33a") },
+      { id: 51, category: "thali", name: "Chonak Thali",        price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1599487488170-d11ec9c172f0") },
+      { id: 52, category: "thali", name: "Prawns Thali",        price: null, priceLabel: APS, veg: false, image: itemPhoto("photo-1565557623262-b51c2513a641") },
 
       // ---- Fish Fry (all priced on request) -----------------------------
       { id: 53, category: "fish-fry", name: "Kingfish Fry",   price: null, priceLabel: APS, veg: false, description: FISH_STYLES },
@@ -145,12 +165,12 @@
       { id: 74, category: "pulao", name: "Prawns Pulao", price: 400, veg: false },
 
       // ---- Breads -------------------------------------------------------
-      { id: 75, category: "bread", name: "Pao",               price: 15,  veg: true },
-      { id: 76, category: "bread", name: "Poi",               price: 15,  veg: true },
-      { id: 77, category: "bread", name: "Chapati",           price: 30,  veg: true },
-      { id: 78, category: "bread", name: "Roti",              price: 30,  veg: true },
-      { id: 79, category: "bread", name: "Naan",              price: 60,  veg: true },
-      { id: 80, category: "bread", name: "Butter Naan",       price: 80,  veg: true },
+      { id: 75, category: "bread", name: "Pao",                price: 15,  veg: true },
+      { id: 76, category: "bread", name: "Poi",                price: 15,  veg: true },
+      { id: 77, category: "bread", name: "Chapati",            price: 30,  veg: true },
+      { id: 78, category: "bread", name: "Roti",               price: 30,  veg: true },
+      { id: 79, category: "bread", name: "Naan",               price: 60,  veg: true },
+      { id: 80, category: "bread", name: "Butter Naan",        price: 80,  veg: true },
       { id: 81, category: "bread", name: "Butter Garlic Naan", price: 110, veg: true },
       { id: 82, category: "bread", name: "Cheese Garlic Naan", price: 160, veg: true },
 
@@ -169,25 +189,39 @@
     ],
   };
 
-  /* ---- Self-check: catches typos the moment the page loads ------------- */
+  /* ---- Self-check: catches typos the moment the page loads -------------- */
   (function validate() {
-    const cats = new Set();
+    const problems = [];
+    const warnings = [];
+
+    const categoryIds = new Set();
     menu.categories.forEach((c) => {
-      if (cats.has(c.id)) console.error(`[menu] duplicate category id "${c.id}"`);
-      cats.add(c.id);
+      if (categoryIds.has(c.id)) problems.push(`duplicate category id "${c.id}"`);
+      categoryIds.add(c.id);
+      if (!c.name) problems.push(`category "${c.id}" has no name`);
+      if (!c.image) warnings.push(`category "${c.id}" has no image`);
     });
 
-    const ids = new Set();
+    const itemIds = new Set();
     menu.items.forEach((i) => {
-      if (ids.has(i.id)) console.error(`[menu] duplicate item id ${i.id} ("${i.name}")`);
-      ids.add(i.id);
-      if (!cats.has(i.category)) console.error(`[menu] item ${i.id} "${i.name}" has unknown category "${i.category}"`);
-      if (i.price === null && !i.priceLabel) console.error(`[menu] item ${i.id} "${i.name}" has no price and no priceLabel`);
+      const label = `item ${i.id} "${i.name}"`;
+      if (itemIds.has(i.id)) problems.push(`duplicate ${label}`);
+      itemIds.add(i.id);
+      if (!categoryIds.has(i.category)) problems.push(`${label} has unknown category "${i.category}"`);
+      if (typeof i.veg !== "boolean") problems.push(`${label} needs veg: true or false`);
+      if (i.price === null) {
+        if (!i.priceLabel) problems.push(`${label} has no price and no priceLabel`);
+      } else if (typeof i.price !== "number" || !(i.price >= 0)) {
+        problems.push(`${label} has an invalid price (${i.price})`);
+      }
     });
 
-    cats.forEach((id) => {
-      if (!menu.items.some((i) => i.category === id)) console.warn(`[menu] category "${id}" has no items`);
+    categoryIds.forEach((id) => {
+      if (!menu.items.some((i) => i.category === id)) warnings.push(`category "${id}" has no items`);
     });
+
+    problems.forEach((p) => console.error(`[menu] ${p}`));
+    warnings.forEach((w) => console.warn(`[menu] ${w}`));
   })();
 
   window.MOCK_MENU = menu;
