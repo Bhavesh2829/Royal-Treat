@@ -25,6 +25,17 @@
   // "jpg"  = classic JPEG.
   const IMAGE_FORMAT = "auto";
 
+  // "remote" = Unsplash stock photos (placeholders, may not match the dish).
+  // "local"  = your own PNG files at images/categories/<category-id>.png
+  //            e.g. images/categories/biryani.png  (recommended for production)
+  const CATEGORY_IMAGE_SOURCE = "remote";
+  const LOCAL_CATEGORY_DIR = "images/categories/";
+
+  // Bump this whenever you edit the file. It forces browsers to re-download
+  // the photos and is printed in the console so you can confirm which version
+  // of this file is actually running.
+  const MENU_VERSION = "2026-10-20.2";
+
   const CATEGORY_IMG_SIZE = 400; // shown as small circles, so no need for more
   const ITEM_IMG_SIZE = 600;
 
@@ -36,7 +47,10 @@
     return `https://images.unsplash.com/${id}?${format}&fit=crop&w=${width}&q=80`;
   };
 
-  const categoryPhoto = (id) => photo(id, CATEGORY_IMG_SIZE);
+  const categoryImage = (categoryId, photoId) =>
+    CATEGORY_IMAGE_SOURCE === "local"
+      ? `${LOCAL_CATEGORY_DIR}${categoryId}.png?v=${MENU_VERSION}`
+      : `${photo(photoId, CATEGORY_IMG_SIZE)}&v=${MENU_VERSION}`;
   const itemPhoto = (id) => photo(id, ITEM_IMG_SIZE);
 
   const FISH_STYLES =
@@ -47,21 +61,21 @@
   const menu = {
     /* ------------------------------------------------------------------ */
     categories: [
-      { id: "soups",            name: "Soup",             emoji: "🍲", image: categoryPhoto("photo-1547592166-23ac45744acd") },
-      { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: categoryPhoto("photo-1567188040759-fb8a883dc6d8") },
-      { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: categoryPhoto("photo-1610057099443-fde8c4d50f91") },
-      { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: categoryPhoto("photo-1631452180519-c014fe946bc7") },
-      { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: categoryPhoto("photo-1599487488170-d11ec9c172f0") },
-      { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: categoryPhoto("photo-1603894584373-5ac82b2ae398") },
-      { id: "thali",            name: "Thali",            emoji: "🍽️", image: categoryPhoto("photo-1546833999-b9f581a1996d") },
-      { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: categoryPhoto("photo-1519708227418-c8fd9a32b7a2") },
-      { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: categoryPhoto("photo-1603133872878-684f208fb84b") },
-      { id: "noodles",          name: "Noodles",          emoji: "🍜", image: categoryPhoto("photo-1569718212165-3a8278d5f624") },
-      { id: "biryani",          name: "Biryani",          emoji: "🍲", image: categoryPhoto("photo-1589302168068-964664d93dc0") },
-      { id: "pulao",            name: "Pulao",            emoji: "🍚", image: categoryPhoto("photo-1596560548464-f010549b84d7") },
-      { id: "bread",            name: "Breads",           emoji: "🫓", image: categoryPhoto("photo-1626074353765-517a681e40be") },
-      { id: "beverages",        name: "Beverages",        emoji: "🥤", image: categoryPhoto("photo-1544145945-f90425340c7e") },
-      { id: "dessert",          name: "Dessert",          emoji: "🍮", image: categoryPhoto("photo-1666190092159-3171cf0fbb12") },
+      { id: "soups",            name: "Soup",             emoji: "🍲", image: categoryImage("soups", "photo-1547592166-23ac45744acd") },
+      { id: "veg-starters",     name: "Veg Starters",     emoji: "🥗", image: categoryImage("veg-starters", "photo-1567188040759-fb8a883dc6d8") },
+      { id: "chicken-starters", name: "Chicken Starters", emoji: "🍗", image: categoryImage("chicken-starters", "photo-1610057099443-fde8c4d50f91") },
+      { id: "veg-mains",        name: "Veg Mains",        emoji: "🍛", image: categoryImage("veg-mains", "photo-1631452180519-c014fe946bc7") },
+      { id: "tandoori",         name: "Tandoori",         emoji: "🔥", image: categoryImage("tandoori", "photo-1599487488170-d11ec9c172f0") },
+      { id: "chicken-mains",    name: "Chicken Mains",    emoji: "🍗", image: categoryImage("chicken-mains", "photo-1603894584373-5ac82b2ae398") },
+      { id: "thali",            name: "Thali",            emoji: "🍽️", image: categoryImage("thali", "photo-1546833999-b9f581a1996d") },
+      { id: "fish-fry",         name: "Fish Fry",         emoji: "🐟", image: categoryImage("fish-fry", "photo-1519708227418-c8fd9a32b7a2") },
+      { id: "chinese-rice",     name: "Chinese Rice",     emoji: "🍚", image: categoryImage("chinese-rice", "photo-1603133872878-684f208fb84b") },
+      { id: "noodles",          name: "Noodles",          emoji: "🍜", image: categoryImage("noodles", "photo-1569718212165-3a8278d5f624") },
+      { id: "biryani",          name: "Biryani",          emoji: "🍲", image: categoryImage("biryani", "photo-1589302168068-964664d93dc0") },
+      { id: "pulao",            name: "Pulao",            emoji: "🍚", image: categoryImage("pulao", "photo-1596560548464-f010549b84d7") },
+      { id: "bread",            name: "Breads",           emoji: "🫓", image: categoryImage("bread", "photo-1626074353765-517a681e40be") },
+      { id: "beverages",        name: "Beverages",        emoji: "🥤", image: categoryImage("beverages", "photo-1544145945-f90425340c7e") },
+      { id: "dessert",          name: "Dessert",          emoji: "🍮", image: categoryImage("dessert", "photo-1666190092159-3171cf0fbb12") },
     ],
 
     /* ------------------------------------------------------------------ */
@@ -223,6 +237,8 @@
     problems.forEach((p) => console.error(`[menu] ${p}`));
     warnings.forEach((w) => console.warn(`[menu] ${w}`));
   })();
+
+  console.info(`[menu] Royal Treat mock menu v${MENU_VERSION} loaded (${CATEGORY_IMAGE_SOURCE} images)`);
 
   window.MOCK_MENU = menu;
 })();
