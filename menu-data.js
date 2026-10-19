@@ -111,10 +111,9 @@ categories: [
       // ---- Thali --------------------------------------------------------
       { id: 48, category: "thali", name: "Veg Thali",           price: 160, veg: true,  image: photo("photo-1625398407796-82650a8c135f", 600) }, // South Indian thali on banana leaf
       { id: 49, category: "thali", name: "Standard Fish Thali", price: 170, veg: false, image: photo("photo-1786227905994-235e1799292e", 600) }, // fried fish meal
-      { id: 50, category: "thali", name: "Kingfish Thali",      price: null, priceLabel: APS, veg: false, image: photo("photo-1621334997871-3315750ee33a", 600) },
-      { id: 51, category: "thali", name: "Chonak Thali",        price: null, priceLabel: APS, veg: false, image: photo("photo-1786227905994-235e1799292e", 600) }, // fried fish meal
+      { id: 50, category: "thali", name: "Kingfish Thali",      price: null, priceLabel: APS, veg: false, image: photo("photo-1786227905994-235e1799292e", 600) },      { id: 51, category: "thali", name: "Chonak Thali",        price: null, priceLabel: APS, veg: false, image: photo("photo-1786227905994-235e1799292e", 600) }, // fried fish meal
       { id: 52, category: "thali", name: "Prawns Thali",        price: null, priceLabel: APS, veg: false, image: photo("photo-1723476669561-e0419f096039", 600) }, // cooked prawn plate
-      
+
       // ---- Fish Fry (all priced on request) -----------------------------
       { id: 53, category: "fish-fry", name: "Kingfish Fry",   price: null, priceLabel: APS, veg: false, description: FISH_STYLES },
       { id: 54, category: "fish-fry", name: "Chonak Fry",     price: null, priceLabel: APS, veg: false, description: FISH_STYLES },

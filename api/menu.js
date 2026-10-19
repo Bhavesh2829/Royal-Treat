@@ -26,10 +26,11 @@ const img = (id) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=600&q=80`;
 
 const ITEM_IMAGES = {
-  48: img("photo-1625398407796-82650a8c135f"), // Veg Thali: South Indian thali on banana leaf
-  49: img("photo-1786227905994-235e1799292e"), // Standard Fish Thali: fried fish meal
-  51: img("photo-1786227905994-235e1799292e"), // Chonak Thali: fried fish meal
-  52: img("photo-1723476669561-e0419f096039"), // Prawns Thali: cooked prawn plate
+  48: img("photo-1625398407796-82650a8c135f"), // Veg Thali
+  49: img("photo-1786227905994-235e1799292e"), // Standard Fish Thali
+  50: img("photo-1786227905994-235e1799292e"), // Kingfish Thali  <-- ADD THIS LINE
+  51: img("photo-1786227905994-235e1799292e"), // Chonak Thali
+  52: img("photo-1723476669561-e0419f096039"), // Prawns Thali
 };
 
 module.exports = async (req, res) => {
