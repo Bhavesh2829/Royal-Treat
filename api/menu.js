@@ -20,14 +20,29 @@ const CATEGORY_IMAGES = {
   "beverages":     png("photo-1621330716555-5cad596c4562"), // iced lemon drink
 };
 
+// Dish photos for specific items, keyed by item id (600px, auto format).
+// Items not listed keep whatever image they already have in Firestore.
+const img = (id) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=600&q=80`;
+
+const ITEM_IMAGES = {
+  48: img("photo-1625398407796-82650a8c135f"), // Veg Thali: South Indian thali on banana leaf
+  49: img("photo-1786227905994-235e1799292e"), // Standard Fish Thali: fried fish meal
+  51: img("photo-1786227905994-235e1799292e"), // Chonak Thali: fried fish meal
+  52: img("photo-1723476669561-e0419f096039"), // Prawns Thali: cooked prawn plate
+};
+
 module.exports = async (req, res) => {
   try {
     const m = await getMenu();
     const categories = m.categories.map((c) =>
       CATEGORY_IMAGES[c.id] ? { ...c, image: CATEGORY_IMAGES[c.id] } : c
     );
+    const items = m.items.map((i) =>
+      ITEM_IMAGES[i.id] ? { ...i, image: ITEM_IMAGES[i.id] } : i
+    );
     // Short CDN cache keeps Firestore reads low; owner edits show within ~20s.
     res.setHeader("Cache-Control", "public, s-maxage=20, stale-while-revalidate=60");
-    res.status(200).json({ categories, items: m.items });
+    res.status(200).json({ categories, items });
   } catch (e) { fail(res, e); }
 };
