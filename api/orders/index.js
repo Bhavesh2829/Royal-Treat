@@ -7,7 +7,13 @@ module.exports = async (req, res) => {
   if (req.method !== "POST") return send(res, 405, { message: "Method not allowed" });
   try {
     const b = req.body || {};
-    const s = await getSettings();
+    // Settings, menu and the waiter lookup don't depend on each other: fetch them together.
+    const key = String(req.headers["x-waiter-key"] || "");
+    const [s, menu, wSnap] = await Promise.all([
+      getSettings(),
+      getMenu(),
+      key.length >= 10 ? db.collection("waiters").where("key", "==", key).limit(1).get() : Promise.resolve(null),
+    ]);
     if (!s.isOpen) throw httpErr(400, "Ordering is paused right now");
 
     // Table must be a real table
@@ -27,7 +33,6 @@ module.exports = async (req, res) => {
     if (!wanted.size) throw httpErr(400, "Cart is empty");
     if (wanted.size > s.maxItems) throw httpErr(400, "Too many items");
 
-    const menu = await getMenu();
     const byId = new Map(menu.items.map((i) => [String(i.id), i]));
     const items = [];
     let subtotal = 0;
@@ -50,13 +55,9 @@ module.exports = async (req, res) => {
 
     // Who handles it? A waiter taking the order themselves, or auto-assign.
     let waiter = null, placedBy = "customer";
-    const key = String(req.headers["x-waiter-key"] || "");
-    if (key.length >= 10) {
-      const w = await db.collection("waiters").where("key", "==", key).limit(1).get();
-      if (!w.empty && w.docs[0].data().active !== false) {
-        waiter = { id: w.docs[0].id, ...w.docs[0].data() };
-        placedBy = "waiter";
-      }
+    if (wSnap && !wSnap.empty && wSnap.docs[0].data().active !== false) {
+      waiter = { id: wSnap.docs[0].id, ...wSnap.docs[0].data() };
+      placedBy = "waiter";
     }
     if (!waiter) waiter = await pickWaiter(table);
 

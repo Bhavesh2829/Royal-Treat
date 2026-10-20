@@ -127,13 +127,15 @@
   const show = (m) => { const e = $("#err"); e.textContent = m; e.classList.remove("hidden"); };
   async function call(body = {}) {
     if (key.length < 10) { show("This link is not valid. Ask the owner for the kitchen link."); return null; }
+    const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 10000);   // a hung request must never freeze updates
     try {
-      const r = await fetch("/api/chef", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, ...body }) });
+      const r = await fetch("/api/chef", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, ...body }), signal: ctrl.signal });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) { show(j.message || "Could not load orders"); return null; }
       $("#err").classList.add("hidden");
       return j;
     } catch (_) { show("No internet. Retrying…"); return null; }
+    finally { clearTimeout(to); }
   }
 
   function apply(j) {
@@ -156,8 +158,8 @@
     if (busy || pending) return;
     busy = true; const g = gen;
     const full = force === true || !since || Date.now() - lastFull > 60000;
-    const j = await call(full ? {} : { since });
-    busy = false;
+    let j = null;
+    try { j = await call(full ? {} : { since }); } finally { busy = false; }
     if (j && g === gen) apply(j);
   }
 
@@ -176,6 +178,8 @@
   tick(true);
   setInterval(() => { if (!document.hidden) tick(); }, 3000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+  addEventListener("online", () => tick(true));
+  addEventListener("pageshow", (e) => { if (e.persisted) tick(true); });
   setInterval(() => document.querySelectorAll("[data-age]").forEach((el) => { const m = mins(+el.dataset.age); el.textContent = ageTxt(m); el.className = AGE_BASE + ageCls(m); }), 20000);
 })();
 </script>

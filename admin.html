@@ -282,8 +282,13 @@
   /* ---------- helpers ---------- */
   let tt; function toast(m) { const el = $("#toast"); $("div", el).textContent = m; el.classList.remove("opacity-0", "translate-y-4"); clearTimeout(tt); tt = setTimeout(() => el.classList.add("opacity-0", "translate-y-4"), 2600); }
   async function call(action, data = {}) {
-    const r = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + token }, body: JSON.stringify({ action, ...data }) });
-    const j = await r.json().catch(() => ({}));
+    const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 15000);   // a hung request must never freeze the dashboard
+    let r, j;
+    try {
+      r = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + token }, body: JSON.stringify({ action, ...data }), signal: ctrl.signal });
+      j = await r.json().catch(() => ({}));
+    } catch (e) { throw new Error(e && e.name === "AbortError" ? "The server is slow. Please try again." : "No internet connection."); }
+    finally { clearTimeout(to); }
     if (r.status === 401 && action !== "login") { logout(); throw new Error("Please log in again"); }
     if (!r.ok) throw new Error(j.message || "Something went wrong");
     return j;
@@ -292,10 +297,13 @@
   function beep() {
     if (!sound) return;
     try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
+      const c = (actx = actx || new (window.AudioContext || window.webkitAudioContext)());
+      if (c.state === "suspended") c.resume();
       [880, 1175, 880].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + i * 0.2; o.frequency.value = f; o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.start(t); o.stop(t + 0.19); });
     } catch (_) {}
   }
+  let actx = null;
+  ["pointerdown", "keydown"].forEach((ev) => addEventListener(ev, () => { try { if (actx && actx.state === "suspended") actx.resume(); } catch (_) {} }, { passive: true }));
   const paintSound = () => { $("#sound").textContent = sound ? "🔔 Sound on" : "🔕 Sound off"; };
 
   /* ---------- login / logout ---------- */
@@ -534,7 +542,7 @@
     let saved = "orders"; try { saved = sessionStorage.getItem("rt-tab") || "orders"; } catch (_) {}
     tab(saved);
     clearInterval(timer);
-    timer = setInterval(() => { if (!document.hidden) refresh(); }, 5000);
+    timer = setInterval(() => { if (!document.hidden) refresh(); }, 3000);
     // Everything loads at the same time instead of one after another.
     const safe = (p, f) => p.then(f).catch(() => {});
     await Promise.all([
@@ -546,6 +554,9 @@
     ]);
   }
   setInterval(() => { $("#clock").textContent = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); }, 1000);
+  // Coming back to the tab or regaining internet: refresh right away.
+  document.addEventListener("visibilitychange", () => { if (token && !document.hidden) refresh(); });
+  addEventListener("online", () => { if (token) refresh(true); });
   if (token) start();
 })();
 </script>

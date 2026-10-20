@@ -43,6 +43,17 @@
   const money = cfg.helpers.formatPrice;
   const WAITER_MODE = (() => { try { return !!sessionStorage.getItem("rt-waiter"); } catch (_) { return false; } })();
 
+  /* Waiter's private key: from the link (?waiter=KEY), else from this tab's session. */
+  const WAITER_KEY = (() => {
+    const ok = (v) => (v && /^[A-Za-z0-9_-]{8,}$/.test(v) ? v : "");
+    try {
+      return ok(new URLSearchParams(location.search).get("waiter")) ||
+             ok(sessionStorage.getItem("rt-waiter")) || "";
+    } catch (_) { return ""; }
+  })();
+  /** Where a waiter lands after sending an order: their own dashboard. */
+  const waiterHomeUrl = () => (WAITER_KEY ? "waiter.html?k=" + encodeURIComponent(WAITER_KEY) : "");
+
   /* ======================================================================
      Tiny helpers
      ====================================================================== */
@@ -629,6 +640,35 @@
         paymentMethod: cfg.PAYMENT_METHODS[0],
       });
 
+      state.cart = {};
+      store.del("cart");
+
+      // Waiter: order is sent, go straight back to their own dashboard.
+      const home = WAITER_MODE ? waiterHomeUrl() : "";
+      if (home) {
+        // Hand the order to the dashboard so it shows instantly (no waiting for the server).
+        try {
+          const nowMs = Date.now();
+          sessionStorage.setItem("rt-just-placed", JSON.stringify({
+            id: order.id, number: order.number, table: state.table.id,
+            status: "received", open: true,
+            items: t.lines.map((l) => ({ name: l.item.name, qty: l.qty })),
+            notes: ($("#f-notes")?.value || "").trim(),
+            customerName: ($("#f-name")?.value || "").trim(),
+            createdAtMs: nowMs, updatedAtMs: nowMs,
+          }));
+        } catch (_) { /* non-fatal: the dashboard still loads it from the server */ }
+        store.del("table");
+        store.del("active-order");
+        closeCart();
+        updateCartBadge();
+        toast("Order sent ✓");
+        // replace() so the Back button never returns to this finished order page.
+        // state.placing stays true so a double tap can't send the order twice.
+        location.replace(home);
+        return;
+      }
+
       state.order = {
         ...order,
         table: state.table.id,
@@ -637,9 +677,7 @@
       };
       store.setFresh("active-order", state.order); // survives a page refresh
 
-      state.cart = {};
-      store.del("cart");
-      if (WAITER_MODE) store.del("table"); // next table must be picked again
+      if (WAITER_MODE) store.del("table"); // (no waiter link found) next table must be picked again
       state.placing = false;
       closeCart();
       updateCartBadge();
@@ -943,6 +981,9 @@
       if (rawQr) toast("We couldn't read that table's QR code. Please choose your table.");
     }
   }
+
+  // Waiter pressed Back and the browser restored an old copy of this page: reload fresh.
+  window.addEventListener("pageshow", (e) => { if (e.persisted && WAITER_MODE) location.reload(); });
 
   init();
 })();
