@@ -218,10 +218,10 @@ const Api = (() => {
   const toArray = (v, key) =>
     Array.isArray(v) ? v : Array.isArray(v?.[key]) ? v[key] : [];
 
-  const normalizeRestaurant = (r) => ({
-    name: str(r?.name) || cfg.RESTAURANT_NAME,
-    isOpen: r?.isOpen !== false,
-  });
+  const normalizeRestaurant = (r) => {
+    if (r && r.gstPercent !== undefined) helpers.setTax(r);   // owner's live GST
+    return { name: str(r?.name) || cfg.RESTAURANT_NAME, isOpen: r?.isOpen !== false };
+  };
 
   const normalizeTable = (t) => ({
     id: str(t?.id),
@@ -447,6 +447,13 @@ const Api = (() => {
   };
 
   const src = cfg.USE_MOCK ? mock : real;
+
+    // Keep GST in sync if the owner changes it while a customer has the page open.
+  if (!cfg.USE_MOCK) {
+    const syncTax = () => real.getRestaurant().then(normalizeRestaurant).catch(() => {});
+    setInterval(() => { if (!document.hidden) syncTax(); }, 60000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) syncTax(); });
+  }
 
   /* ======================================================================
      Public API

@@ -172,6 +172,7 @@ const ACTIONS = {
     const data = {
       isOpen: !!b.isOpen,
       gstPercent: num(b.gstPercent, 0, 100, "GST"),
+            gstEnabled: b.gstEnabled !== false,
       servicePercent: num(b.servicePercent, 0, 100, "Service charge"),
       tableCount: Math.round(num(b.tableCount, 1, 200, "Tables")),
       pricesIncludeTax: !!b.pricesIncludeTax,

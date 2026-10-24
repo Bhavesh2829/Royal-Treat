@@ -23,6 +23,7 @@ const DEFAULTS = {
   restaurantName: "Royal Treat",
   isOpen: true,
   gstPercent: 5,
+    gstEnabled: true,
   servicePercent: 0,
   pricesIncludeTax: false,
   tableCount: 18,
@@ -42,15 +43,16 @@ async function getMenu() {
 
 /* Same maths as config.js calculateTotals, but authoritative. */
 function totals(subtotal, s) {
+  const g = s.gstEnabled === false ? 0 : s.gstPercent;   // GST OFF = 0%
   const base = Math.max(0, Number(subtotal) || 0);
   const service = (base * s.servicePercent) / 100;
   const taxable = base + service;
   let tax, total;
   if (s.pricesIncludeTax) {
-    tax = taxable - taxable / (1 + s.gstPercent / 100);
+    tax = taxable - taxable / (1 + g / 100);
     total = taxable;
   } else {
-    tax = (taxable * s.gstPercent) / 100;
+    tax = (taxable * g) / 100;
     total = taxable + tax;
   }
   const r = (x) => Math.round(x * 100) / 100;

@@ -257,7 +257,17 @@
         total: r(total),
       };
     },
+        /** Called by api.js with the owner's live tax settings from the server. */
+    setTax(t) {
+      if (!t) return;
+      const g = Number(t.gstPercent), sv = Number(t.servicePercent);
+      if (Number.isFinite(g) && g >= 0 && g <= 100) SETTINGS.GST_PERCENT = g;
+      if (Number.isFinite(sv) && sv >= 0 && sv <= 100) SETTINGS.SERVICE_CHARGE_PERCENT = sv;
+      if (typeof t.pricesIncludeTax === "boolean") SETTINGS.PRICES_INCLUDE_TAX = t.pricesIncludeTax;
+    },
   };
+
+  
 
   /* ======================================================================
      PUBLISH
@@ -270,9 +280,12 @@
     return Object.freeze(obj);
   };
 
-  const config = deepFreeze(
-    Object.assign({}, SETTINGS, { helpers: Object.freeze(helpers) }),
+  const base = Object.assign({}, SETTINGS, { helpers: Object.freeze(helpers) });
+  ["GST_PERCENT", "SERVICE_CHARGE_PERCENT", "PRICES_INCLUDE_TAX"].forEach((k) =>
+    Object.defineProperty(base, k, { get: () => SETTINGS[k], enumerable: true }),
   );
+  const config = deepFreeze(base);
+  
   window.APP_CONFIG = config;
 
   warnings.forEach((w) => console.warn(`[config] ${w}`));
