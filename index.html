@@ -134,37 +134,36 @@
         Digital dining by <span id="powered-by" class="border-b border-slate-400 text-slate-500">Webtizo</span>
       </p>
     </section>
-
-    <!-- ================= VIEW 2 : MENU ================= -->
-    <section id="view-menu" class="mx-auto hidden max-w-xl pb-24" aria-label="Menu">
+<!-- ================= VIEW 2 : MENU ================= -->
+    <section id="view-menu" class="mx-auto hidden max-w-xl pb-28" aria-label="Menu">
       <h1 class="sr-only">Menu</h1>
 
       <!-- Sticky header: table, cart, search -->
-      <div class="sticky top-0 z-30 bg-[#faf7f2]/90 px-2 pb-2 pt-2 backdrop-blur-xl sm:px-4">
-        <div class="relative overflow-hidden rounded-xl border border-slate-200/60 bg-white p-2 shadow-[0_2px_15px_rgb(0,0,0,0.04)]">
+      <div class="sticky top-0 z-30 bg-[#faf7f2]/90 px-3 pb-2.5 pt-3 backdrop-blur-xl sm:px-4">
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-2.5 shadow-[0_4px_24px_rgb(16,24,40,0.07)]">
 
-          <div class="flex items-center justify-between gap-2">
-            <button id="change-table" type="button" class="flex min-w-0 flex-1 items-center justify-between gap-1 rounded-md border border-slate-200/80 bg-slate-50 px-2 py-1.5 text-slate-700 transition-all hover:bg-slate-100 active:scale-[0.98]" aria-label="Change table">
-              <span class="flex min-w-0 items-center gap-1.5">
-                <svg class="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M6 8l1 12M18 8l-1 12M3 8h18M9 4h6"/></svg>
-                <span id="table-label" class="truncate text-[11px] font-extrabold uppercase tracking-wide">Table 1</span>
+          <div class="flex items-center justify-between gap-2.5">
+            <button id="change-table" type="button" class="flex min-h-[44px] min-w-0 flex-1 touch-manipulation items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-700 transition-all hover:bg-slate-100 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40" aria-label="Change table">
+              <span class="flex min-w-0 items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M6 8l1 12M18 8l-1 12M3 8h18M9 4h6"/></svg>
+                <span id="table-label" class="truncate text-[12px] font-extrabold uppercase tracking-wider">Table 1</span>
               </span>
-              <svg class="h-3 w-3 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+              <svg class="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </button>
 
-            <button id="open-cart" type="button" class="flex shrink-0 items-center gap-1.5 rounded-md bg-brand px-2.5 py-1.5 text-[11px] font-bold text-white shadow-sm transition-all hover:bg-brand-dark active:scale-[0.98]" aria-label="Open cart">
-              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1"/><circle cx="17" cy="20.5" r="1"/></svg>
+            <button id="open-cart" type="button" class="flex min-h-[44px] shrink-0 touch-manipulation items-center gap-2 rounded-xl bg-brand px-4 text-[13px] font-bold text-white shadow-lift transition-all hover:bg-brand-dark active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2" aria-label="Open cart">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1"/><circle cx="17" cy="20.5" r="1"/></svg>
               Cart
-              <span id="cart-badge" class="ml-0.5 grid h-4 min-w-[16px] place-items-center rounded-full bg-white px-1 text-[9px] font-extrabold text-brand shadow-sm" aria-live="polite">0</span>
+              <span id="cart-badge" class="grid h-5 min-w-[20px] place-items-center rounded-full bg-white px-1.5 text-[11px] font-extrabold tabular-nums text-brand shadow-sm" aria-live="polite">0</span>
             </button>
           </div>
 
-          <div class="mt-1.5 flex items-center rounded-md border border-slate-200/80 bg-slate-50/50 pl-2 pr-1.5 transition-all focus-within:border-brand/40 focus-within:bg-white focus-within:shadow-[0_0_0_2px_rgba(var(--brand-rgb),0.08)]">
+          <div class="mt-2 flex min-h-[44px] items-center rounded-xl border border-slate-200 bg-slate-50/70 pl-3 pr-2 transition-all focus-within:border-brand/40 focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(var(--brand-rgb),0.10)]">
             <div data-feature="search" class="flex min-w-0 flex-1 items-center">
-              <svg class="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              <input id="search" type="search" autocomplete="off" aria-label="Search dishes" placeholder="Search dishes..." class="min-w-0 flex-1 bg-transparent px-2 py-1.5 text-[16px] font-medium text-slate-900 outline-none placeholder:text-slate-400 sm:text-[12px]" />
+              <svg class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="search" type="search" autocomplete="off" aria-label="Search dishes" placeholder="Search dishes..." class="min-w-0 flex-1 bg-transparent px-2.5 py-2.5 text-[16px] font-medium text-slate-900 outline-none placeholder:text-slate-400 sm:text-[14px]" />
             </div>
-            <label data-feature="veg_filter" class="ml-auto flex shrink-0 cursor-pointer items-center gap-1.5 border-l border-slate-200/80 py-0.5 pl-2 pr-1 text-[11px] font-bold text-slate-600">
+            <label data-feature="veg_filter" class="ml-auto flex shrink-0 cursor-pointer items-center gap-2 border-l border-slate-200 py-1 pl-3 pr-1 text-[12px] font-bold text-slate-600">
               <input id="veg-only" type="checkbox" class="veg-check" />
               Veg
             </label>
@@ -174,93 +173,97 @@
 
       <div class="px-3 sm:px-4">
         <!-- Live order banner (shown while an order is being prepared) -->
-        <button id="order-banner" type="button" class="mt-2.5 flex hidden w-full items-center justify-between rounded-lg border border-live/30 bg-live-soft px-3 py-2 text-left shadow-sm transition-all hover:bg-live/10 active:scale-[0.98]">
-          <span class="flex items-center gap-1.5 text-[12px] font-bold text-live">
-            <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
-              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75"></span>
-              <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-live"></span>
+        <button id="order-banner" type="button" class="mt-3 flex hidden min-h-[48px] w-full touch-manipulation items-center justify-between rounded-2xl border border-live/30 bg-live-soft px-4 py-2.5 text-left shadow-sm transition-all hover:bg-live/10 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-live/40">
+          <span class="flex items-center gap-2.5 text-[13px] font-bold text-live">
+            <span class="relative flex h-2 w-2" aria-hidden="true">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75 motion-reduce:animate-none"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-live"></span>
             </span>
             <span id="banner-text">Order in progress</span>
           </span>
-          <span class="text-[10px] font-extrabold uppercase tracking-wide text-live">Track &rarr;</span>
+          <span class="rounded-full bg-white/70 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-live">Track &rarr;</span>
         </button>
 
         <!-- Optional quick actions (controlled by APP_CONFIG.FEATURES) -->
         <div class="empty:hidden">
-          <button id="call-waiter" data-feature="call_waiter" type="button" class="mt-2.5 hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm transition active:scale-[0.97]">
+          <button id="call-waiter" data-feature="call_waiter" type="button" class="mt-3 hidden min-h-[40px] items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[12px] font-bold text-slate-700 shadow-sm transition active:scale-[0.97]">
             <span aria-hidden="true">🔔</span> Call waiter
           </button>
         </div>
 
-        <h2 class="mt-4 text-[19px] font-extrabold tracking-tight text-slate-900">What are you craving?</h2>
-
-        <div id="category-row" class="no-scrollbar -mx-3 mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto px-3 pb-2 sm:-mx-4 sm:px-4"></div>
-
-        <div class="mt-4 flex items-start justify-between gap-3 border-t border-slate-100 pt-4">
-          <div class="flex min-w-0 flex-col gap-0.5">
-            <h3 id="list-title" class="text-[17px] font-extrabold leading-tight tracking-tight text-slate-900">Guest favourites</h3>
-            <p id="list-sub" class="text-[12px] font-medium text-slate-500">Fresh picks from our menu.</p>
-          </div>
-          <span id="item-count" class="inline-flex shrink-0 items-center justify-center rounded-md border border-slate-200/80 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-600 shadow-sm">0 items</span>
+        <div class="mt-5">
+          <h2 class="text-[24px] font-extrabold leading-tight tracking-tight text-slate-900">What are you craving?</h2>
+          <p class="mt-0.5 text-[13px] font-medium text-slate-500">Pick a category or search above.</p>
         </div>
 
-        <div id="item-list" class="mt-3 space-y-2.5"></div>
+        <div id="category-row" class="no-scrollbar -mx-3 mt-3.5 flex snap-x snap-mandatory scroll-px-3 gap-2.5 overflow-x-auto px-3 pb-3 sm:-mx-4 sm:px-4"></div>
+
+        <div class="mt-3 flex items-start justify-between gap-3 border-t border-slate-200/70 pt-5">
+          <div class="flex min-w-0 flex-col gap-1">
+            <h3 id="list-title" class="text-[19px] font-extrabold leading-tight tracking-tight text-slate-900">Guest favourites</h3>
+            <p id="list-sub" class="text-[13px] font-medium text-slate-500">Fresh picks from our menu.</p>
+          </div>
+          <span id="item-count" class="inline-flex shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold tabular-nums text-slate-600 shadow-sm">0 items</span>
+        </div>
+
+        <div id="item-list" class="mt-4 space-y-3"></div>
       </div>
     </section>
 
     <!-- ================= VIEW 3 : ORDER PLACED ================= -->
     <section id="view-success" class="hidden px-4 pb-12 pt-8 sm:px-5" aria-label="Order confirmation">
-      <div class="rounded-[28px] bg-white p-6 text-center shadow-card">
-        <div class="pop mx-auto grid h-20 w-20 place-items-center rounded-full bg-live-soft">
-          <svg class="h-10 w-10 text-live" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+      <div class="rounded-[28px] border border-slate-200/60 bg-white p-7 text-center shadow-card">
+        <div class="pop mx-auto grid h-24 w-24 place-items-center rounded-full bg-live-soft ring-8 ring-live/10">
+          <svg class="h-12 w-12 text-live" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
         </div>
-        <h2 class="mt-5 text-[28px] font-extrabold tracking-tight">Order placed!</h2>
-        <p id="s-status" class="mt-2 inline-flex rounded-full bg-live-soft px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-live" role="status" aria-live="polite">Order received</p>
-        <p id="s-sub" class="mt-3 text-slate-500">Sit back, we’re on it. Keep this page open to follow your order.</p>
+        <h2 class="mt-6 text-[30px] font-extrabold leading-tight tracking-tight">Order placed!</h2>
+        <p id="s-status" class="mt-3 inline-flex rounded-full bg-live-soft px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-live" role="status" aria-live="polite">Order received</p>
+        <p id="s-sub" class="mx-auto mt-3 max-w-xs text-[15px] leading-relaxed text-slate-500">Sit back, we’re on it. Keep this page open to follow your order.</p>
 
-        <div class="mt-6 grid grid-cols-2 gap-3 text-left">
-          <div class="rounded-2xl bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Order</p><p id="s-order" class="mt-1 text-lg font-extrabold">—</p></div>
-          <div class="rounded-2xl bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Table</p><p id="s-table" class="mt-1 text-lg font-extrabold">—</p></div>
+        <div class="mt-7 grid grid-cols-2 gap-3 text-left">
+          <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Order</p><p id="s-order" class="mt-1 text-xl font-extrabold tabular-nums">—</p></div>
+          <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Table</p><p id="s-table" class="mt-1 text-xl font-extrabold tabular-nums">—</p></div>
         </div>
 
-        <ol id="s-steps" class="mt-7 text-left" aria-label="Order progress"></ol>
+        <ol id="s-steps" class="mt-8 text-left" aria-label="Order progress"></ol>
       </div>
 
-      <div class="mt-4 rounded-[28px] bg-white p-6 shadow-card">
-        <h3 class="text-lg font-extrabold">Your items</h3>
+      <div class="mt-4 rounded-[28px] border border-slate-200/60 bg-white p-6 shadow-card">
+        <h3 class="text-lg font-extrabold tracking-tight">Your items</h3>
         <ul id="s-items" class="mt-3 divide-y divide-slate-100 text-[15px]"></ul>
-        <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-4 text-base font-extrabold"><span>Total</span><span id="s-total">—</span></div>
+        <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-4 text-lg font-extrabold"><span>Total</span><span id="s-total" class="tabular-nums">—</span></div>
       </div>
 
       <div class="mt-5 grid grid-cols-1 gap-3">
-        <button id="order-more" type="button" class="rounded-2xl bg-brand py-4 text-base font-bold text-white shadow-lift transition hover:bg-brand-dark">Order something more</button>
+        <button id="order-more" type="button" class="min-h-[56px] touch-manipulation rounded-2xl bg-brand py-4 text-base font-bold text-white shadow-lift transition hover:bg-brand-dark active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2">Order something more</button>
       </div>
     </section>
   </div>
 
   <!-- ================= CART DRAWER ================= -->
-  <div id="cart-overlay" class="pointer-events-none fixed inset-0 z-40 bg-slate-900/50 opacity-0 transition-opacity duration-300" aria-hidden="true"></div>
-  <aside id="cart-sheet" inert class="pointer-events-none fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[90dvh] w-full max-w-xl translate-y-full flex-col rounded-t-[28px] bg-white shadow-2xl transition-transform duration-300 ease-out" role="dialog" aria-modal="true" aria-label="Your cart">
-    <div class="flex items-center justify-between px-5 pb-3 pt-5">
-      <div>
-        <h3 class="text-[22px] font-extrabold tracking-tight">Your order</h3>
-        <p id="cart-table" class="text-sm text-slate-500">Table 1</p>
+  <div id="cart-overlay" class="pointer-events-none fixed inset-0 z-40 bg-slate-900/50 opacity-0 backdrop-blur-[2px] transition-opacity duration-300" aria-hidden="true"></div>
+  <aside id="cart-sheet" inert class="pointer-events-none fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[90dvh] w-full max-w-xl translate-y-full flex-col rounded-t-[28px] bg-white shadow-[0_-12px_48px_rgba(16,24,40,0.22)] transition-transform duration-300 ease-out" role="dialog" aria-modal="true" aria-label="Your cart">
+    <span class="mx-auto mt-2.5 h-1.5 w-11 shrink-0 rounded-full bg-slate-200" aria-hidden="true"></span>
+    <div class="flex items-center justify-between px-5 pb-3 pt-3">
+      <div class="min-w-0">
+        <h3 class="text-[24px] font-extrabold leading-tight tracking-tight">Your order</h3>
+        <p id="cart-table" class="mt-0.5 truncate text-[13px] font-semibold text-slate-500">Table 1</p>
       </div>
-      <button id="close-cart" type="button" class="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200" aria-label="Close cart">
+      <button id="close-cart" type="button" class="grid h-11 w-11 shrink-0 touch-manipulation place-items-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40" aria-label="Close cart">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </div>
 
     <div id="cart-body" class="flex-1 overflow-y-auto overscroll-contain px-5 pb-4"></div>
 
-    <div id="cart-footer" class="border-t border-slate-100 bg-white px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
-      <div class="space-y-1.5 text-sm text-slate-600">
-        <div class="flex justify-between"><span>Subtotal</span><span id="c-sub">—</span></div>
-        <div id="c-tax-row" class="flex justify-between"><span>GST</span><span id="c-tax">—</span></div>
-        <div class="flex justify-between pt-1 text-lg font-extrabold text-ink"><span>Total</span><span id="c-total">—</span></div>
+    <div id="cart-footer" class="border-t border-slate-100 bg-white px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-8px_24px_rgba(16,24,40,0.04)]">
+      <div class="space-y-2 text-[14px] font-medium text-slate-600">
+        <div class="flex justify-between"><span>Subtotal</span><span id="c-sub" class="tabular-nums">—</span></div>
+        <div id="c-tax-row" class="flex justify-between"><span>GST</span><span id="c-tax" class="tabular-nums">—</span></div>
+        <div class="flex items-center justify-between border-t border-dashed border-slate-200 pt-3 text-[20px] font-extrabold text-ink"><span>Total</span><span id="c-total" class="tabular-nums">—</span></div>
       </div>
-      <p id="cart-error" class="mt-3 hidden rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-700" role="alert"></p>
-      <button id="place-order" type="button" class="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 text-base font-bold text-white shadow-lift transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50">
+      <p id="cart-error" class="mt-3 hidden rounded-xl bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-700" role="alert"></p>
+      <button id="place-order" type="button" class="mt-4 flex min-h-[56px] w-full touch-manipulation items-center justify-center gap-2 rounded-2xl bg-brand py-4 text-base font-bold text-white shadow-lift transition hover:bg-brand-dark active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100">
         <span id="place-label">Place order</span>
       </button>
     </div>
@@ -268,24 +271,23 @@
 
   <!-- Order sent bar (replaces the full "Order placed" page) -->
   <div id="order-sent" inert role="status" aria-live="polite" class="pointer-events-none fixed inset-x-0 bottom-0 z-[55] mx-auto w-full max-w-xl translate-y-[140%] px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] opacity-0">
-    <div class="relative overflow-hidden rounded-2xl bg-ink p-2.5 pr-3 text-white shadow-[0_18px_40px_rgba(16,24,40,.35)] ring-1 ring-white/10">
+    <div class="relative overflow-hidden rounded-2xl bg-ink p-3 pr-3.5 text-white shadow-[0_18px_40px_rgba(16,24,40,.38)] ring-1 ring-white/10">
       <div class="flex items-center gap-3">
-        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-live/15 text-live">
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-live/15 text-live">
           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
         </span>
         <div class="min-w-0 flex-1">
           <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Sent to kitchen</p>
           <p id="os-title" class="truncate text-[17px] font-extrabold leading-tight">Order placed</p>
         </div>
-        <button id="os-track" type="button" class="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-[12px] font-extrabold uppercase tracking-wide text-white shadow-lift transition hover:bg-brand-dark active:scale-95">Track order</button>
-        <button id="os-close" type="button" aria-label="Dismiss" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-white/10 hover:text-white">
+        <button id="os-track" type="button" class="min-h-[44px] shrink-0 touch-manipulation rounded-xl bg-brand px-4 text-[12px] font-extrabold uppercase tracking-wide text-white shadow-lift transition hover:bg-brand-dark active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60">Track order</button>
+        <button id="os-close" type="button" aria-label="Dismiss" class="grid h-9 w-9 shrink-0 touch-manipulation place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
         </button>
       </div>
       <span class="sent-progress absolute inset-x-0 bottom-0 h-[3px] bg-live/70"></span>
     </div>
   </div>
-
   <!-- Toast -->
   <div id="toast" class="pointer-events-none fixed inset-x-0 bottom-6 z-[60] mx-auto flex max-w-xs translate-y-4 justify-center px-4 opacity-0 transition duration-300"><div class="rounded-full bg-ink px-5 py-3 text-center text-sm font-semibold text-white shadow-xl"></div></div>
 
