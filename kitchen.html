@@ -105,9 +105,31 @@
       <button data-st="${esc(o.id)}|${isNew ? "preparing" : "ready"}" class="mt-3 w-full rounded-xl py-4 text-base font-bold text-white ${isNew ? "bg-brand hover:bg-brand-dark" : "bg-live hover:bg-green-700"}">${isNew ? "Start preparing" : "Mark ready"}</button>
     </article>`;
   }
+
+    function tableCard(list, fresh) {
+    list.sort((a, b) => a.createdAtMs - b.createdAtMs);          // old first, added food below
+    const anyNew = list.some((o) => o.status === "received");
+    const flash = fresh && list.some((o) => fresh.has(o.id));
+    const batches = list.map((o, idx) => {
+      const isNew = o.status === "received", m = mins(o.createdAtMs);
+      const added = idx > 0 && isNew;
+      return `<div class="mt-3 ${idx ? "border-t border-slate-100 pt-3" : ""} ${added ? "rounded-xl bg-amber-50 p-3 ring-1 ring-amber-300" : ""}">
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-[11px] text-slate-500">${idx > 0 ? '➕ <b class="text-amber-700">ADDED</b> · ' : ""}Order #${esc(o.number)} · ${tm(o.createdAtMs)}${o.waiterName ? " · " + esc(o.waiterName) : ""}</p>
+          <span data-age="${o.createdAtMs}" class="${AGE_BASE}${ageCls(m)}">${ageTxt(m)}</span>
+        </div>
+        <ul class="mt-2 divide-y divide-slate-100">${(o.items || []).map((i) => `<li class="flex items-baseline justify-between gap-3 py-2 text-[17px]"><span class="font-semibold">${esc(i.name)}</span><span class="rounded-lg bg-slate-100 px-2 py-0.5 font-extrabold">× ${i.qty}</span></li>`).join("")}</ul>
+        ${o.notes ? `<p class="mt-2 rounded-lg bg-amber-100 px-3 py-2 text-sm font-semibold text-amber-800">📝 ${esc(o.notes)}</p>` : ""}
+        <button data-st="${esc(o.id)}|${isNew ? "preparing" : "ready"}" class="mt-3 w-full rounded-xl py-4 text-base font-bold text-white ${isNew ? "bg-brand hover:bg-brand-dark" : "bg-live hover:bg-green-700"}">${isNew ? "Start preparing" : "Mark ready"}</button>
+      </div>`;
+    }).join("");
+    return `<article class="rounded-2xl border-l-4 bg-white p-4 shadow-card ${anyNew ? "border-brand" : "border-amber-400"} ${flash ? "flash" : ""}">
+      <p class="text-2xl font-extrabold leading-none">Table ${esc(tbl(list[0].table))}</p>${batches}</article>`;
+  }
+
   const section = (title, tone, list, empty, fresh) => `<section>
     <h2 class="mb-2 flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider ${tone}">${title}<span class="rounded-full bg-white px-2 py-0.5 text-xs text-ink shadow-card">${list.length}</span></h2>
-    ${list.length ? `<div class="grid gap-3 sm:grid-cols-2">${list.map((o) => card(o, fresh && fresh.has(o.id))).join("")}</div>` : `<p class="rounded-2xl bg-white/60 px-4 py-5 text-center text-sm font-semibold text-slate-400">${empty}</p>`}
+    ${list.length ? `<div class="grid gap-3 sm:grid-cols-2">${list.map((g) => tableCard(g, fresh)).join("")}</div>` : `<p class="rounded-2xl bg-white/60 px-4 py-5 text-center text-sm font-semibold text-slate-400">${empty}</p>`}
   </section>`;
 
   function render(fresh) {
@@ -117,8 +139,13 @@
     const sig = all.map((o) => o.id + o.status + (o.updatedAtMs || 0)).join(",");
     if (sig === lastSig && !(fresh && fresh.size)) return;   // nothing changed: leave the screen alone
     lastSig = sig;
+        const gm = new Map();
+    all.filter((o) => o.status === "received" || o.status === "preparing").forEach((o) => { const k = String(o.table); if (!gm.has(k)) gm.set(k, []); gm.get(k).push(o); });
+    const groups = [...gm.values()].sort((a, b) => Math.max(...b.map((o) => o.createdAtMs)) - Math.max(...a.map((o) => o.createdAtMs)));
+    const gNew = groups.filter((g) => g.some((o) => o.status === "received")), gCook = groups.filter((g) => !g.some((o) => o.status === "received"));
+
     $("#board").innerHTML = all.length
-      ? section("New orders", "text-brand", nw, "No new orders.", fresh) + section("Preparing", "text-amber-600", cook, "Nothing is being prepared.", fresh)
+      ? section("New orders", "text-brand", gNew, "No new orders.", fresh) + section("Preparing", "text-amber-600", gCook, "Nothing is being prepared.", fresh)
         + (done.length ? `<section><h2 class="mb-2 text-sm font-extrabold uppercase tracking-wider text-live">Ready · waiting for the waiter</h2><div class="flex flex-wrap gap-2">${done.map((o) => `<span class="rounded-full bg-live-soft px-3 py-1.5 text-xs font-bold text-live">Table ${esc(tbl(o.table))} · #${esc(o.number)}${o.waiterName ? " · " + esc(o.waiterName) : ""}</span>`).join("")}</div></section>` : "")
       : `<div class="rounded-2xl bg-white p-12 text-center shadow-card"><p class="text-5xl text-slate-300">👨‍🍳</p><p class="mt-3 text-base font-bold text-slate-500">No orders in the kitchen right now.</p><p class="mt-1 text-sm text-slate-400">New orders appear here the moment they are placed.</p></div>`;
   }
